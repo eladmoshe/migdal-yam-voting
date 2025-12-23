@@ -1,0 +1,246 @@
+import { supabase } from '../config/supabase';
+import type {
+  Apartment,
+  VotingIssue,
+  VotingIssueWithCounts,
+  VoteResults,
+  VoteWithApartment,
+} from '../types';
+import type { Database } from '../types/database';
+
+// Type helpers for RPC return types
+type ValidateCredentialsResult = Database['public']['Functions']['validate_apartment_credentials']['Returns'][number];
+type GetActiveIssueResult = Database['public']['Functions']['get_active_issue']['Returns'][number];
+type GetVoteResultsResult = Database['public']['Functions']['get_vote_results']['Returns'][number];
+type GetAllIssuesResult = Database['public']['Functions']['get_all_issues_with_counts']['Returns'][number];
+type GetVotesByIssueResult = Database['public']['Functions']['get_votes_by_issue']['Returns'][number];
+
+// Helper to call RPC with proper typing
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const rpc = supabase.rpc.bind(supabase) as (fn: string, args?: Record<string, unknown>) => any;
+
+// ============================================
+// VOTER API FUNCTIONS
+// ============================================
+
+/**
+ * Validate apartment credentials (server-side PIN check)
+ * Returns apartment info if valid, null if invalid
+ */
+export async function validateCredentials(
+  apartmentNumber: string,
+  pin: string
+): Promise<Apartment | null> {
+  const { data, error } = await rpc('validate_apartment_credentials', {
+    p_apartment_number: apartmentNumber,
+    p_pin: pin,
+  });
+
+  if (error || !data || (data as ValidateCredentialsResult[]).length === 0) {
+    return null;
+  }
+
+  const result = (data as ValidateCredentialsResult[])[0];
+  return {
+    id: result.apartment_id,
+    number: result.apartment_number,
+    ownerName: result.owner_name,
+  };
+}
+
+/**
+ * Get the currently active voting issue
+ */
+export async function getActiveIssue(): Promise<VotingIssue | null> {
+  const { data, error } = await rpc('get_active_issue');
+
+  if (error || !data || (data as GetActiveIssueResult[]).length === 0) {
+    return null;
+  }
+
+  const result = (data as GetActiveIssueResult[])[0];
+  return {
+    id: result.id,
+    title: result.title,
+    description: result.description,
+    active: true,
+    createdAt: result.created_at,
+  };
+}
+
+/**
+ * Check if an apartment has already voted on an issue
+ */
+export async function hasApartmentVoted(
+  apartmentId: string,
+  issueId: string
+): Promise<boolean> {
+  const { data, error } = await rpc('check_apartment_voted', {
+    p_apartment_id: apartmentId,
+    p_issue_id: issueId,
+  });
+
+  if (error) {
+    console.error('Error checking vote status:', error);
+    return false;
+  }
+
+  return data === true;
+}
+
+/**
+ * Cast a vote for an issue
+ * Returns true if successful, false if already voted or error
+ */
+export async function castVote(
+  apartmentId: string,
+  issueId: string,
+  vote: 'yes' | 'no'
+): Promise<boolean> {
+  const { data, error } = await rpc('cast_vote', {
+    p_apartment_id: apartmentId,
+    p_issue_id: issueId,
+    p_vote: vote,
+  });
+
+  if (error) {
+    console.error('Error casting vote:', error);
+    return false;
+  }
+
+  return data === true;
+}
+
+/**
+ * Get vote results for an issue (public aggregates)
+ */
+export async function getVoteResults(issueId: string): Promise<VoteResults> {
+  const { data, error } = await rpc('get_vote_results', {
+    p_issue_id: issueId,
+  });
+
+  if (error || !data || (data as GetVoteResultsResult[]).length === 0) {
+    return { yes: 0, no: 0, total: 0 };
+  }
+
+  const result = (data as GetVoteResultsResult[])[0];
+  return {
+    yes: result.yes_count ?? 0,
+    no: result.no_count ?? 0,
+    total: result.total_count ?? 0,
+  };
+}
+
+// ============================================
+// ADMIN API FUNCTIONS
+// ============================================
+
+/**
+ * Get all voting issues with vote counts (admin only)
+ */
+export async function getAllIssues(): Promise<VotingIssueWithCounts[]> {
+  const { data, error } = await rpc('get_all_issues_with_counts');
+
+  if (error) {
+    console.error('Error fetching issues:', error);
+    return [];
+  }
+
+  return ((data ?? []) as GetAllIssuesResult[]).map((issue) => ({
+    id: issue.id,
+    title: issue.title,
+    description: issue.description,
+    active: issue.active,
+    createdAt: issue.created_at,
+    closedAt: issue.closed_at,
+    yesCount: issue.yes_count ?? 0,
+    noCount: issue.no_count ?? 0,
+    totalCount: issue.total_count ?? 0,
+  }));
+}
+
+/**
+ * Get votes for an issue with apartment info (admin only)
+ */
+export async function getVotesByIssue(issueId: string): Promise<VoteWithApartment[]> {
+  const { data, error } = await rpc('get_votes_by_issue', {
+    p_issue_id: issueId,
+  });
+
+  if (error) {
+    console.error('Error fetching votes:', error);
+    return [];
+  }
+
+  return ((data ?? []) as GetVotesByIssueResult[]).map((vote) => ({
+    voteId: vote.vote_id,
+    apartmentNumber: vote.apartment_number,
+    ownerName: vote.owner_name,
+    vote: vote.vote as 'yes' | 'no',
+    votedAt: vote.voted_at,
+  }));
+}
+
+/**
+ * Create a new voting issue (admin only)
+ */
+export async function createIssue(
+  title: string,
+  description: string,
+  active: boolean = false
+): Promise<string | null> {
+  const { data, error } = await rpc('create_issue', {
+    p_title: title,
+    p_description: description,
+    p_active: active,
+  });
+
+  if (error) {
+    console.error('Error creating issue:', error);
+    return null;
+  }
+
+  return data as string | null;
+}
+
+/**
+ * Toggle issue active status (admin only)
+ */
+export async function toggleIssueActive(
+  issueId: string,
+  active: boolean
+): Promise<boolean> {
+  const { data, error } = await rpc('toggle_issue_active', {
+    p_issue_id: issueId,
+    p_active: active,
+  });
+
+  if (error) {
+    console.error('Error toggling issue:', error);
+    return false;
+  }
+
+  return data === true;
+}
+
+/**
+ * Get all apartments (admin only)
+ */
+export async function getAllApartments(): Promise<Apartment[]> {
+  const { data, error } = await supabase
+    .from('apartments')
+    .select('id, number, owner_name')
+    .order('number');
+
+  if (error) {
+    console.error('Error fetching apartments:', error);
+    return [];
+  }
+
+  type ApartmentRow = { id: string; number: string; owner_name: string };
+  return ((data ?? []) as ApartmentRow[]).map((apt) => ({
+    id: apt.id,
+    number: apt.number,
+    ownerName: apt.owner_name,
+  }));
+}

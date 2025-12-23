@@ -1,11 +1,42 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LoginScreen } from './LoginScreen';
+import { VotingProvider } from '../context/VotingContext';
+import * as api from '../lib/api';
+
+// Mock the API module
+vi.mock('../lib/api', () => ({
+  validateCredentials: vi.fn(),
+  getActiveIssue: vi.fn(),
+}));
+
+const mockValidateCredentials = vi.mocked(api.validateCredentials);
+const mockGetActiveIssue = vi.mocked(api.getActiveIssue);
+
+function renderLoginScreen() {
+  return render(
+    <VotingProvider>
+      <LoginScreen />
+    </VotingProvider>
+  );
+}
 
 describe('LoginScreen', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Default mock for getActiveIssue (called on VotingProvider mount)
+    mockGetActiveIssue.mockResolvedValue({
+      id: 'issue-1',
+      title: 'Test Issue',
+      description: 'Test description',
+      active: true,
+      createdAt: '2024-01-01T00:00:00Z',
+    });
+  });
+
   it('should render login form', () => {
-    render(<LoginScreen onLogin={vi.fn()} />);
+    renderLoginScreen();
 
     expect(screen.getByText('מגדל ים')).toBeInTheDocument();
     expect(screen.getByText('קלפי דיגיטלית')).toBeInTheDocument();
@@ -15,7 +46,7 @@ describe('LoginScreen', () => {
   });
 
   it('should have disabled submit button initially', () => {
-    render(<LoginScreen onLogin={vi.fn()} />);
+    renderLoginScreen();
 
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
     expect(submitButton).toBeDisabled();
@@ -23,7 +54,7 @@ describe('LoginScreen', () => {
 
   it('should enable submit button when apartment and 5-digit PIN are entered', async () => {
     const user = userEvent.setup();
-    render(<LoginScreen onLogin={vi.fn()} />);
+    renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
     const pinInput = screen.getByLabelText(/קוד PIN/i);
@@ -37,7 +68,7 @@ describe('LoginScreen', () => {
 
   it('should keep submit button disabled with less than 5 digits PIN', async () => {
     const user = userEvent.setup();
-    render(<LoginScreen onLogin={vi.fn()} />);
+    renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
     const pinInput = screen.getByLabelText(/קוד PIN/i);
@@ -51,7 +82,7 @@ describe('LoginScreen', () => {
 
   it('should only allow numeric input in PIN field', async () => {
     const user = userEvent.setup();
-    render(<LoginScreen onLogin={vi.fn()} />);
+    renderLoginScreen();
 
     const pinInput = screen.getByLabelText(/קוד PIN/i) as HTMLInputElement;
 
@@ -62,7 +93,7 @@ describe('LoginScreen', () => {
 
   it('should limit PIN to 5 characters', async () => {
     const user = userEvent.setup();
-    render(<LoginScreen onLogin={vi.fn()} />);
+    renderLoginScreen();
 
     const pinInput = screen.getByLabelText(/קוד PIN/i) as HTMLInputElement;
 
@@ -71,10 +102,15 @@ describe('LoginScreen', () => {
     expect(pinInput.value).toBe('12345');
   });
 
-  it('should call onLogin with apartment data on successful login', async () => {
+  it('should call validateCredentials on successful login', async () => {
     const user = userEvent.setup();
-    const onLogin = vi.fn();
-    render(<LoginScreen onLogin={onLogin} />);
+    mockValidateCredentials.mockResolvedValue({
+      id: 'apt-1',
+      number: '1',
+      ownerName: 'משפחת כהן',
+    });
+
+    renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
     const pinInput = screen.getByLabelText(/קוד PIN/i);
@@ -85,18 +121,15 @@ describe('LoginScreen', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(onLogin).toHaveBeenCalledWith({
-        number: '1',
-        pin: '12345',
-        ownerName: 'משפחת כהן',
-      });
+      expect(mockValidateCredentials).toHaveBeenCalledWith('1', '12345');
     });
   });
 
   it('should show error message on invalid credentials', async () => {
     const user = userEvent.setup();
-    const onLogin = vi.fn();
-    render(<LoginScreen onLogin={onLogin} />);
+    mockValidateCredentials.mockResolvedValue(null);
+
+    renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
     const pinInput = screen.getByLabelText(/קוד PIN/i);
@@ -109,12 +142,16 @@ describe('LoginScreen', () => {
     await waitFor(() => {
       expect(screen.getByText(/מספר דירה או קוד PIN שגויים/i)).toBeInTheDocument();
     });
-    expect(onLogin).not.toHaveBeenCalled();
   });
 
   it('should show loading state while authenticating', async () => {
     const user = userEvent.setup();
-    render(<LoginScreen onLogin={vi.fn()} />);
+    // Make the validation hang
+    mockValidateCredentials.mockImplementation(
+      () => new Promise(() => {}) // Never resolves
+    );
+
+    renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
     const pinInput = screen.getByLabelText(/קוד PIN/i);
@@ -128,8 +165,27 @@ describe('LoginScreen', () => {
   });
 
   it('should display help text about PIN distribution', () => {
-    render(<LoginScreen onLogin={vi.fn()} />);
+    renderLoginScreen();
 
     expect(screen.getByText(/הקוד נשלח לבעלי הדירות בלבד/i)).toBeInTheDocument();
+  });
+
+  it('should show error on network failure', async () => {
+    const user = userEvent.setup();
+    mockValidateCredentials.mockRejectedValue(new Error('Network error'));
+
+    renderLoginScreen();
+
+    const apartmentInput = screen.getByLabelText(/מספר דירה/i);
+    const pinInput = screen.getByLabelText(/קוד PIN/i);
+    const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
+
+    await user.type(apartmentInput, '1');
+    await user.type(pinInput, '12345');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/שגיאה בהתחברות/i)).toBeInTheDocument();
+    });
   });
 });

@@ -5,8 +5,11 @@
   command = "npm run build"
 
 [build.environment]
-  # Node version for build
-  NODE_VERSION = "20"
+  # Node version for build (Vite 7 requires 20.19+ or 22.12+)
+  NODE_VERSION = "22"
+  # Required environment variables (set in Netlify dashboard):
+  # VITE_SUPABASE_URL = "https://your-project.supabase.co"
+  # VITE_SUPABASE_ANON_KEY = "your-anon-key"
 
 # SPA redirect - all routes go to index.html
 [[redirects]]

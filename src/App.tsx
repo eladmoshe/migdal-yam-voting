@@ -1,32 +1,15 @@
-import { useState } from 'react';
-import { LoginScreen } from './components/LoginScreen';
-import { VotingScreen } from './components/VotingScreen';
-import { currentIssue } from './data/mockData';
-import type { Apartment } from './types';
+import { Routes, Route } from 'react-router-dom';
+import { VoterPage } from './pages/VoterPage';
+import { AdminPage } from './pages/AdminPage';
+import { NotFound } from './pages/NotFound';
 
 function App() {
-  const [currentApartment, setCurrentApartment] = useState<Apartment | null>(null);
-
-  const handleLogin = (apartment: Apartment) => {
-    setCurrentApartment(apartment);
-  };
-
-  const handleLogout = () => {
-    setCurrentApartment(null);
-  };
-
-  // Show login if not authenticated
-  if (!currentApartment) {
-    return <LoginScreen onLogin={handleLogin} />;
-  }
-
-  // Show voting screen if authenticated
   return (
-    <VotingScreen
-      apartment={currentApartment}
-      issue={currentIssue}
-      onLogout={handleLogout}
-    />
+    <Routes>
+      <Route path="/" element={<VoterPage />} />
+      <Route path="/admin/*" element={<AdminPage />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 

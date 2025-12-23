@@ -1,12 +1,9 @@
 import { useState } from 'react';
-import type { Apartment } from '../types';
-import { validateCredentials } from '../data/mockData';
+import { useVoting } from '../context/VotingContext';
+import { validateCredentials } from '../lib/api';
 
-interface LoginScreenProps {
-  onLogin: (apartment: Apartment) => void;
-}
-
-export function LoginScreen({ onLogin }: LoginScreenProps) {
+export function LoginScreen() {
+  const { login } = useVoting();
   const [apartmentNumber, setApartmentNumber] = useState('');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
@@ -17,15 +14,17 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
     setError('');
     setIsLoading(true);
 
-    // Simulate network delay for realism
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      const apartment = await validateCredentials(apartmentNumber, pin);
 
-    const apartment = validateCredentials(apartmentNumber, pin);
-
-    if (apartment) {
-      onLogin(apartment);
-    } else {
-      setError('מספר דירה או קוד PIN שגויים');
+      if (apartment) {
+        login(apartment);
+      } else {
+        setError('מספר דירה או קוד PIN שגויים');
+      }
+    } catch {
+      setError('שגיאה בהתחברות. אנא נסו שוב.');
+    } finally {
       setIsLoading(false);
     }
   };

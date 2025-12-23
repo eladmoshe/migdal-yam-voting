@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Apartment, VotingIssue } from '../types';
-import { castVote, hasApartmentVoted, getVoteResults } from '../data/mockData';
+import { castVote, hasApartmentVoted, getVoteResults } from '../lib/api';
 
 interface VotingScreenProps {
   apartment: Apartment;
@@ -9,32 +9,72 @@ interface VotingScreenProps {
 }
 
 export function VotingScreen({ apartment, issue, onLogout }: VotingScreenProps) {
-  const [hasVoted, setHasVoted] = useState(() =>
-    hasApartmentVoted(apartment.number, issue.id)
-  );
+  const [hasVoted, setHasVoted] = useState(false);
   const [votedValue, setVotedValue] = useState<'yes' | 'no' | null>(null);
   const [isVoting, setIsVoting] = useState(false);
+  const [isCheckingVote, setIsCheckingVote] = useState(true);
   const [showResults, setShowResults] = useState(false);
+  const [results, setResults] = useState({ yes: 0, no: 0, total: 0 });
+
+  // Check if already voted on mount
+  useEffect(() => {
+    async function checkVoteStatus() {
+      const voted = await hasApartmentVoted(apartment.id, issue.id);
+      setHasVoted(voted);
+      setIsCheckingVote(false);
+
+      if (voted) {
+        const voteResults = await getVoteResults(issue.id);
+        setResults(voteResults);
+      }
+    }
+
+    checkVoteStatus();
+  }, [apartment.id, issue.id]);
 
   const handleVote = async (vote: 'yes' | 'no') => {
     if (hasVoted || isVoting) return;
 
     setIsVoting(true);
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const success = await castVote(apartment.id, issue.id, vote);
 
-    const success = castVote(apartment.number, issue.id, vote);
+      if (success) {
+        setHasVoted(true);
+        setVotedValue(vote);
 
-    if (success) {
-      setHasVoted(true);
-      setVotedValue(vote);
+        // Fetch updated results
+        const voteResults = await getVoteResults(issue.id);
+        setResults(voteResults);
+      }
+    } catch (error) {
+      console.error('Error casting vote:', error);
+    } finally {
+      setIsVoting(false);
     }
-
-    setIsVoting(false);
   };
 
-  const results = getVoteResults(issue.id);
+  const handleToggleResults = async () => {
+    if (!showResults) {
+      // Refresh results when showing
+      const voteResults = await getVoteResults(issue.id);
+      setResults(voteResults);
+    }
+    setShowResults(!showResults);
+  };
+
+  // Loading state while checking vote status
+  if (isCheckingVote) {
+    return (
+      <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center p-6" dir="rtl">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xl text-blue-700">בודק סטטוס הצבעה...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Already voted view
   if (hasVoted) {
@@ -74,7 +114,7 @@ export function VotingScreen({ apartment, issue, onLogout }: VotingScreenProps) 
 
             {/* Show results toggle */}
             <button
-              onClick={() => setShowResults(!showResults)}
+              onClick={handleToggleResults}
               className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 text-xl font-semibold py-4 px-6 rounded-xl transition-colors duration-200 mb-4"
             >
               {showResults ? 'הסתר תוצאות' : 'הצג תוצאות ביניים'}
