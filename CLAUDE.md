@@ -186,6 +186,7 @@ npm run test:ui      # Run tests with UI
 
 ### Testing Strategy
 - **Unit Tests**: Components with mocked Supabase client
+  - Keep-alive function: 13 test cases covering auth, validation, and execution
 - **Integration Tests**: Full flows with mock data
 - **Manual Testing**: Both voter and admin interfaces before deployment
 
