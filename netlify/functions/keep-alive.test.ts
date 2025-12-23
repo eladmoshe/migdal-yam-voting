@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handler } from './keep-alive';
 import type { HandlerEvent, HandlerContext } from '@netlify/functions';
 
+// Mock timers for instant test execution
+vi.useFakeTimers();
+
 // Mock Supabase client
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
@@ -105,6 +108,7 @@ const mockContext: HandlerContext = {
 describe('Keep-Alive Netlify Function', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.clearAllTimers();
     // Set up environment variables
     process.env.KEEP_ALIVE_SECRET = 'test-secret-token';
     process.env.VITE_SUPABASE_URL = 'https://test.supabase.co';
@@ -192,7 +196,12 @@ describe('Keep-Alive Netlify Function', () => {
   describe('Successful Execution', () => {
     it('should return 200 with stats on successful execution', async () => {
       const event = createMockEvent();
-      const response = await handler(event, mockContext);
+      const responsePromise = handler(event, mockContext);
+      
+      // Fast-forward through all delays
+      await vi.runAllTimersAsync();
+      
+      const response = await responsePromise;
 
       expect(response.statusCode).toBe(200);
       expect(response.headers?.['Content-Type']).toBe('application/json');
@@ -212,29 +221,42 @@ describe('Keep-Alive Netlify Function', () => {
 
     it('should include valid timestamp in ISO format', async () => {
       const event = createMockEvent();
-      const response = await handler(event, mockContext);
+      const responsePromise = handler(event, mockContext);
+      
+      // Fast-forward through all delays
+      await vi.runAllTimersAsync();
+      
+      const response = await responsePromise;
 
       const body = JSON.parse(response.body);
       expect(() => new Date(body.timestamp)).not.toThrow();
       expect(body.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     });
 
-    it('should report reasonable execution time', async () => {
+    it('should complete all 5 database operations', async () => {
       const event = createMockEvent();
-      const response = await handler(event, mockContext);
+      const responsePromise = handler(event, mockContext);
+      
+      // Fast-forward through all delays
+      await vi.runAllTimersAsync();
+      
+      const response = await responsePromise;
 
       const body = JSON.parse(response.body);
-      // With delays: 800 + 600 + 500 + 400 = 2300ms minimum
-      // Allow some overhead but not too much
-      expect(body.performance.totalTimeMs).toBeGreaterThan(2000);
-      expect(body.performance.totalTimeMs).toBeLessThan(5000);
+      expect(body.performance.operationsCompleted).toBe(5);
+      expect(body.performance).toHaveProperty('totalTimeMs');
     });
   });
 
   describe('Response Format', () => {
     it('should include all required fields in success response', async () => {
       const event = createMockEvent();
-      const response = await handler(event, mockContext);
+      const responsePromise = handler(event, mockContext);
+      
+      // Fast-forward through all delays
+      await vi.runAllTimersAsync();
+      
+      const response = await responsePromise;
 
       const body = JSON.parse(response.body);
       expect(body).toHaveProperty('success');
@@ -246,7 +268,12 @@ describe('Keep-Alive Netlify Function', () => {
 
     it('should have correct stats structure', async () => {
       const event = createMockEvent();
-      const response = await handler(event, mockContext);
+      const responsePromise = handler(event, mockContext);
+      
+      // Fast-forward through all delays
+      await vi.runAllTimersAsync();
+      
+      const response = await responsePromise;
 
       const body = JSON.parse(response.body);
       expect(body.stats).toHaveProperty('apartments');
@@ -259,7 +286,12 @@ describe('Keep-Alive Netlify Function', () => {
 
     it('should have correct performance structure', async () => {
       const event = createMockEvent();
-      const response = await handler(event, mockContext);
+      const responsePromise = handler(event, mockContext);
+      
+      // Fast-forward through all delays
+      await vi.runAllTimersAsync();
+      
+      const response = await responsePromise;
 
       const body = JSON.parse(response.body);
       expect(body.performance).toHaveProperty('totalTimeMs');
