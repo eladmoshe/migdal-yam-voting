@@ -72,7 +72,8 @@ export type AuditAction =
   | 'issue_activated'
   | 'issue_deactivated'
   | 'issue_details_viewed'
-  | 'votes_viewed';
+  | 'votes_viewed'
+  | 'apartment_created';
 
 export interface AuditLog {
   id: string;
@@ -93,4 +94,17 @@ export interface AuditLogStats {
   action: string;
   count: number;
   lastOccurrence: string;
+}
+
+// Apartment creation types
+export interface CreateApartmentRequest {
+  apartmentNumber: string;
+  ownerName: string;
+}
+
+export interface CreateApartmentResponse {
+  apartmentId: string;
+  apartmentNumber: string;
+  ownerName: string;
+  pin: string;
 }

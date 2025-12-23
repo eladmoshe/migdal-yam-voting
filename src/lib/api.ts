@@ -7,6 +7,7 @@ import type {
   VoteWithApartment,
   AuditLog,
   AuditLogStats,
+  CreateApartmentResponse,
 } from '../types';
 import type { Database } from '../types/database';
 
@@ -336,4 +337,74 @@ export async function logClientEvent(
   }
 
   return data as string | null;
+}
+
+// ============================================
+// APARTMENT MANAGEMENT API FUNCTIONS
+// ============================================
+
+/**
+ * Create a new apartment with auto-generated PIN (admin only)
+ * Returns success with apartment data including one-time PIN, or error message
+ */
+export async function createApartment(
+  apartmentNumber: string,
+  ownerName: string
+): Promise<{ success: true; data: CreateApartmentResponse } | { success: false; error: string }> {
+  // Trim inputs
+  const trimmedNumber = apartmentNumber.trim();
+  const trimmedName = ownerName.trim();
+
+  const { data, error } = await rpc('create_apartment', {
+    p_apartment_number: trimmedNumber,
+    p_owner_name: trimmedName,
+  });
+
+  if (error) {
+    console.error('Error creating apartment:', error);
+
+    // Map database errors to user-friendly Hebrew messages
+    if (error.message?.includes('already exists') || error.code === '23505') {
+      return { success: false, error: 'מספר דירה זה כבר קיים במערכת' };
+    }
+
+    if (error.message?.includes('Apartment number is required')) {
+      return { success: false, error: 'מספר דירה הוא שדה חובה' };
+    }
+
+    if (error.message?.includes('Owner name is required')) {
+      return { success: false, error: 'שם בעל הדירה הוא שדה חובה' };
+    }
+
+    if (error.message?.includes('Authentication required')) {
+      return { success: false, error: 'נדרשת הזדהות כמנהל' };
+    }
+
+    if (error.message?.includes('Admin privileges required')) {
+      return { success: false, error: 'נדרשות הרשאות מנהל' };
+    }
+
+    // Generic error
+    return { success: false, error: 'אירעה שגיאה ביצירת הדירה' };
+  }
+
+  // Type assertion for the RPC response
+  type CreateApartmentRpcResponse = {
+    apartment_id: string;
+    apartment_number: string;
+    owner_name: string;
+    pin: string;
+  };
+
+  const result = data as CreateApartmentRpcResponse;
+
+  return {
+    success: true,
+    data: {
+      apartmentId: result.apartment_id,
+      apartmentNumber: result.apartment_number,
+      ownerName: result.owner_name,
+      pin: result.pin,
+    },
+  };
 }
