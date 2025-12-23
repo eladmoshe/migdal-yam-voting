@@ -14,6 +14,23 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Verify Configuration
+        run: |
+          echo "🔍 Checking configuration..."
+          
+          if [ -z "${{ secrets.KEEP_ALIVE_SECRET }}" ]; then
+            echo "::error::KEEP_ALIVE_SECRET is not configured in GitHub Secrets"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.NETLIFY_SITE_URL }}" ]; then
+            echo "::error::NETLIFY_SITE_URL is not configured in GitHub Secrets"
+            exit 1
+          fi
+          
+          echo "✅ GitHub secrets are configured"
+          echo "Target URL: ${{ secrets.NETLIFY_SITE_URL }}/api/keep-alive"
+      
       - name: Ping Keep-Alive Endpoint
         id: ping
         run: |
@@ -29,8 +46,12 @@ jobs:
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
           
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "HTTP Status: $http_code"
-          echo "Response: $body"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Response Body:"
+          echo "$body"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           
           if [ "$http_code" -eq 200 ]; then
             echo "✅ Keep-alive successful!"
@@ -38,17 +59,61 @@ jobs:
             exit 0
           else
             echo "❌ Keep-alive failed with status $http_code"
-            echo "$body"
+            
+            # Provide specific error guidance based on status code
+            case $http_code in
+              401)
+                echo "::error::Authentication failed (401 Unauthorized)"
+                echo "The KEEP_ALIVE_SECRET in GitHub does not match Netlify environment variable"
+                echo "→ Check: Netlify Dashboard → Site Settings → Environment Variables → KEEP_ALIVE_SECRET"
+                ;;
+              404)
+                echo "::error::Function not found (404 Not Found)"
+                echo "The keep-alive function is not deployed or URL is incorrect"
+                echo "→ Check: Netlify Dashboard → Functions tab → Look for 'keep-alive'"
+                ;;
+              500)
+                echo "::error::Server error (500 Internal Server Error)"
+                echo "Possible causes:"
+                echo "  - Database migration not applied (health_checks table missing)"
+                echo "  - Supabase credentials not configured in Netlify"
+                echo "  - Database connection issues"
+                echo "→ Check: Netlify Dashboard → Functions → keep-alive → Logs"
+                ;;
+              000)
+                echo "::error::Network error (Could not connect)"
+                echo "The Netlify site may be down or URL is incorrect"
+                echo "→ Verify NETLIFY_SITE_URL: ${{ secrets.NETLIFY_SITE_URL }}"
+                ;;
+              *)
+                echo "::error::Unexpected error (HTTP $http_code)"
+                echo "→ Check: Netlify function logs for details"
+                ;;
+            esac
+            
             exit 1
           fi
       
-      - name: Report Failure
+      - name: Report Failure Summary
         if: failure()
         run: |
-          echo "::error::Keep-alive ping failed. Check Netlify function logs for details."
-          echo "Possible causes:"
-          echo "  - KEEP_ALIVE_SECRET mismatch between GitHub and Netlify"
-          echo "  - Netlify function deployment failed"
-          echo "  - Supabase database connection issues"
-          echo "  - Network connectivity problems"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📋 TROUBLESHOOTING CHECKLIST"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "1. ✓ GitHub Secrets configured?"
+          echo "   → Settings → Secrets and variables → Actions"
+          echo "   → KEEP_ALIVE_SECRET"
+          echo "   → NETLIFY_SITE_URL"
+          echo ""
+          echo "2. ✓ Netlify Environment Variable configured?"
+          echo "   → Netlify Dashboard → Site Settings → Environment Variables"
+          echo "   → KEEP_ALIVE_SECRET (must match GitHub secret)"
+          echo ""
+          echo "3. ✓ Database migration applied?"
+          echo "   → Run supabase/migrations/004_health_checks.sql in Supabase SQL Editor"
+          echo ""
+          echo "4. ✓ Function deployed successfully?"
+          echo "   → Netlify Dashboard → Functions → Look for 'keep-alive'"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
