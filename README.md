@@ -1,73 +1,171 @@
-# React + TypeScript + Vite
+# Migdal Yam Voting Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A Hebrew-language digital voting application for apartment building residents in Migdal Yam, Israel. Designed with elderly residents (60+) in mind, featuring a simple, accessible interface for voting on building issues.
 
-Currently, two official plugins are available:
+🔗 **Live Application**: [https://migdal-yam-voting.netlify.app/](https://migdal-yam-voting.netlify.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### For Residents
+- 🗳️ Simple yes/no voting on building issues
+- 🔐 Secure authentication using apartment number + PIN
+- 📱 Mobile-friendly, large text interface
+- 🇮🇱 Full Hebrew (RTL) support
+- ♿ Accessibility-focused design for elderly users
 
-## Expanding the ESLint configuration
+### For Administrators
+- 📊 Create and manage voting issues
+- 📈 Real-time vote tracking and results
+- 👥 View votes by apartment number
+- 🔒 Secure admin dashboard with email authentication
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Technology Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Frontend**: React 19 + TypeScript + Vite 7
+- **Styling**: Tailwind CSS
+- **Routing**: React Router 7
+- **Backend**: Supabase (PostgreSQL + Auth + REST API)
+- **Hosting**: Netlify (auto-deploy from GitHub)
+- **Testing**: Vitest + React Testing Library
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## Quick Start
+
+### Prerequisites
+- Node.js 22+
+- npm or yarn
+- Supabase account (for backend)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/eladmoshe/migdal-yam-voting.git
+   cd migdal-yam-voting
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Edit `.env.local` and add your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=https://[your-project].supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key-here
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+   The app will be available at `http://localhost:5173`
+
+### Database Setup
+
+1. Create a Supabase project (West EU region recommended for Israel)
+2. Run the migrations in order from `supabase/migrations/`:
+   - `001_initial_schema.sql`
+   - `002_rls_policies.sql`
+   - `003_functions.sql`
+3. Run `supabase/seed.sql` to add initial apartment data
+
+---
+
+## Project Structure
+
+```
+src/
+├── config/         # Supabase client configuration
+├── lib/            # API and auth functions
+├── context/        # React context providers (voting, auth)
+├── pages/          # Main page components
+├── components/     # Reusable UI components
+└── types/          # TypeScript type definitions
+
+supabase/
+├── migrations/     # Database schema migrations
+└── seed.sql        # Initial data
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Development
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Available Commands
+
+```bash
+npm run dev         # Start development server
+npm run build       # Build for production
+npm run preview     # Preview production build locally
+npm test            # Run tests
+npm run test:ui     # Run tests with UI
 ```
+
+### Testing
+
+The project uses Vitest and React Testing Library for testing:
+- Unit tests for components
+- Integration tests for complete user flows
+- Mocked Supabase client for isolated testing
+
+---
+
+## Deployment
+
+The application is automatically deployed to Netlify when changes are pushed to the `master` branch.
+
+### Environment Variables (Production)
+
+Set these in Netlify Dashboard → Site Settings → Environment Variables:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+---
+
+## Security
+
+- ✅ PIN codes stored as bcrypt hashes (never exposed to frontend)
+- ✅ Server-side validation via Supabase RPC functions
+- ✅ Row Level Security (RLS) policies on all database tables
+- ✅ Admin access controlled via `admin_roles` table
+- ✅ One vote per apartment per issue (enforced by database constraints)
+
+---
+
+## Documentation
+
+For detailed developer documentation, see **[CLAUDE.md](./CLAUDE.md)**, which includes:
+- Complete database schema
+- API documentation
+- Deployment workflows
+- Troubleshooting guides
+- Security best practices
+
+---
+
+## Support
+
+- **GitHub Issues**: [https://github.com/eladmoshe/migdal-yam-voting/issues](https://github.com/eladmoshe/migdal-yam-voting/issues)
+- **Contact**: eladmoshe@gmail.com
+
+---
+
+## License
+
+This project is private and proprietary to Migdal Yam building residents.
+
+---
+
+*Last Updated: 2025-12-23*
