@@ -99,6 +99,37 @@ export interface Database {
           created_at?: string;
         };
       };
+      audit_logs: {
+        Row: {
+          id: string;
+          created_at: string;
+          actor_type: 'voter' | 'admin' | 'system';
+          actor_id: string | null;
+          actor_email: string | null;
+          actor_name: string | null;
+          action: string;
+          resource_type: 'auth' | 'vote' | 'issue' | 'apartment' | 'system';
+          resource_id: string | null;
+          success: boolean;
+          error_message: string | null;
+          details: Record<string, unknown>;
+        };
+        Insert: {
+          id?: string;
+          created_at?: string;
+          actor_type: 'voter' | 'admin' | 'system';
+          actor_id?: string | null;
+          actor_email?: string | null;
+          actor_name?: string | null;
+          action: string;
+          resource_type: 'auth' | 'vote' | 'issue' | 'apartment' | 'system';
+          resource_id?: string | null;
+          success?: boolean;
+          error_message?: string | null;
+          details?: Record<string, unknown>;
+        };
+        Update: never; // Audit logs are immutable
+      };
     };
     Functions: {
       validate_apartment_credentials: {
@@ -152,6 +183,47 @@ export interface Database {
       toggle_issue_active: {
         Args: { p_issue_id: string; p_active: boolean };
         Returns: boolean;
+      };
+      log_client_event: {
+        Args: {
+          p_action: string;
+          p_resource_type: string;
+          p_resource_id: string | null;
+          p_success: boolean;
+          p_error_message: string | null;
+          p_details: Record<string, unknown> | null;
+        };
+        Returns: string;
+      };
+      get_audit_logs: {
+        Args: {
+          p_limit?: number;
+          p_offset?: number;
+          p_action_filter?: string | null;
+          p_actor_type_filter?: string | null;
+        };
+        Returns: {
+          id: string;
+          created_at: string;
+          actor_type: string;
+          actor_id: string | null;
+          actor_email: string | null;
+          actor_name: string | null;
+          action: string;
+          resource_type: string;
+          resource_id: string | null;
+          success: boolean;
+          error_message: string | null;
+          details: Record<string, unknown>;
+        }[];
+      };
+      get_audit_log_stats: {
+        Args: Record<string, never>;
+        Returns: {
+          action: string;
+          count: number;
+          last_occurrence: string;
+        }[];
       };
     };
   };

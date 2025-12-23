@@ -5,6 +5,8 @@ import type {
   VotingIssueWithCounts,
   VoteResults,
   VoteWithApartment,
+  AuditLog,
+  AuditLogStats,
 } from '../types';
 import type { Database } from '../types/database';
 
@@ -243,4 +245,95 @@ export async function getAllApartments(): Promise<Apartment[]> {
     number: apt.number,
     ownerName: apt.owner_name,
   }));
+}
+
+// ============================================
+// AUDIT LOG API FUNCTIONS
+// ============================================
+
+// Type helper for audit log RPC results
+type GetAuditLogsResult = Database['public']['Functions']['get_audit_logs']['Returns'][number];
+type GetAuditLogStatsResult = Database['public']['Functions']['get_audit_log_stats']['Returns'][number];
+
+/**
+ * Get audit logs with pagination and optional filters (admin only)
+ */
+export async function getAuditLogs(options?: {
+  limit?: number;
+  offset?: number;
+  actionFilter?: string | null;
+  actorTypeFilter?: string | null;
+}): Promise<AuditLog[]> {
+  const { data, error } = await rpc('get_audit_logs', {
+    p_limit: options?.limit ?? 50,
+    p_offset: options?.offset ?? 0,
+    p_action_filter: options?.actionFilter ?? null,
+    p_actor_type_filter: options?.actorTypeFilter ?? null,
+  });
+
+  if (error) {
+    console.error('Error fetching audit logs:', error);
+    return [];
+  }
+
+  return ((data ?? []) as GetAuditLogsResult[]).map((log) => ({
+    id: log.id,
+    createdAt: log.created_at,
+    actorType: log.actor_type as AuditLog['actorType'],
+    actorId: log.actor_id,
+    actorEmail: log.actor_email,
+    actorName: log.actor_name,
+    action: log.action,
+    resourceType: log.resource_type as AuditLog['resourceType'],
+    resourceId: log.resource_id,
+    success: log.success,
+    errorMessage: log.error_message,
+    details: log.details as Record<string, unknown>,
+  }));
+}
+
+/**
+ * Get audit log statistics (admin only)
+ */
+export async function getAuditLogStats(): Promise<AuditLogStats[]> {
+  const { data, error } = await rpc('get_audit_log_stats');
+
+  if (error) {
+    console.error('Error fetching audit log stats:', error);
+    return [];
+  }
+
+  return ((data ?? []) as GetAuditLogStatsResult[]).map((stat) => ({
+    action: stat.action,
+    count: stat.count,
+    lastOccurrence: stat.last_occurrence,
+  }));
+}
+
+/**
+ * Log a client-side event (for admin auth events)
+ */
+export async function logClientEvent(
+  action: string,
+  resourceType: string,
+  resourceId: string | null,
+  success: boolean,
+  errorMessage: string | null,
+  details: Record<string, unknown> | null
+): Promise<string | null> {
+  const { data, error } = await rpc('log_client_event', {
+    p_action: action,
+    p_resource_type: resourceType,
+    p_resource_id: resourceId,
+    p_success: success,
+    p_error_message: errorMessage,
+    p_details: details,
+  });
+
+  if (error) {
+    console.error('Error logging client event:', error);
+    return null;
+  }
+
+  return data as string | null;
 }
