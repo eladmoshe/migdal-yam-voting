@@ -59,15 +59,15 @@ jobs:
       - name: Ping Keep-Alive Endpoint
         id: ping
         run: |
-          echo "🏓 Pinging Supabase keep-alive endpoint via redirect..."
+          echo "🏓 Pinging Supabase keep-alive endpoint..."
           echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
-          echo "Using URL: ${{ secrets.NETLIFY_SITE_URL }}/api/keep-alive"
+          echo "Using direct function URL: ${{ secrets.NETLIFY_SITE_URL }}/.netlify/functions/keep-alive"
           
           response=$(curl -s -w "\n%{http_code}" \
             -X POST \
             -H "X-Keep-Alive-Secret: ${{ secrets.KEEP_ALIVE_SECRET }}" \
             -H "Content-Type: application/json" \
-            "${{ secrets.NETLIFY_SITE_URL }}/api/keep-alive")
+            "${{ secrets.NETLIFY_SITE_URL }}/.netlify/functions/keep-alive")
           
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
