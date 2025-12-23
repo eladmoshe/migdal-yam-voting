@@ -60,6 +60,7 @@ Set these in Netlify Dashboard → Site Settings → Environment Variables:
 2. **voting_issues** - Questions residents vote on (supports multiple, historical)
 3. **votes** - Immutable vote records (one per apartment per issue)
 4. **admin_roles** - Admin user permissions
+5. **health_checks** - Keep-alive system logs (prevents free tier pausing)
 
 #### Security Functions (RPC)
 - `validate_apartment_credentials(number, pin)` - Server-side PIN validation (never exposes hashes)
@@ -93,6 +94,7 @@ Located in `supabase/migrations/`:
 1. `001_initial_schema.sql` - Tables and basic structure
 2. `002_rls_policies.sql` - Row Level Security policies
 3. `003_functions.sql` - RPC functions for validation and voting
+4. `004_health_checks.sql` - Keep-alive system table and triggers
 
 **To apply migrations**: Run each file in order in Supabase SQL Editor
 
@@ -324,6 +326,73 @@ VALUES ('user-uuid-from-auth', 'admin');
 
 ---
 
+## Keep-Alive System (Supabase Free Tier)
+
+### The Problem
+Supabase free tier pauses projects after **7 days of inactivity**. When paused:
+- API requests fail with connection errors
+- Manual intervention required to restore via dashboard
+- Residents may encounter errors if database is paused during voting
+
+### The Solution
+Automated keep-alive system using GitHub Actions + Netlify Functions:
+
+**Architecture**:
+1. **GitHub Actions** (`.github/workflows/keep-alive.yml`) - Runs every Monday & Thursday at 9 AM UTC
+2. **Netlify Function** (`netlify/functions/keep-alive.ts`) - Performs realistic database operations
+3. **Health Checks Table** (`health_checks`) - Logs each keep-alive ping with stats
+
+**What It Does**:
+- ✅ Counts apartments (SELECT query)
+- ✅ Fetches recent voting issues (SELECT with ORDER BY)
+- ✅ Counts total votes (aggregate query)
+- ✅ Inserts health check record (INSERT operation)
+- ✅ Verifies inserted record (SELECT verification)
+- ✅ Includes realistic delays (400-800ms) between operations
+
+**Security**:
+- Secret token required (`KEEP_ALIVE_SECRET`) in request header
+- Function returns 401 for invalid/missing tokens
+- RLS policies: anonymous inserts allowed, authenticated reads only
+
+### Setup Instructions
+
+#### 1. Apply Database Migration
+Run `supabase/migrations/004_health_checks.sql` in Supabase SQL Editor:
+- Creates `health_checks` table
+- Auto-cleanup trigger (keeps last 30 records)
+- RLS policies for security
+
+#### 2. Configure Environment Variables
+
+**In Netlify Dashboard** (Site Settings → Environment Variables):
+```
+KEEP_ALIVE_SECRET = <generate-random-32-char-string>
+```
+
+**In GitHub Repository** (Settings → Secrets and variables → Actions):
+```
+KEEP_ALIVE_SECRET = <same-value-as-netlify>
+NETLIFY_SITE_URL = https://migdal-yam-voting.netlify.app
+```
+
+#### 3. Deploy & Test
+1. Push code to GitHub (workflow auto-deploys with Netlify)
+2. Test manually: Actions tab → "Supabase Keep-Alive" → "Run workflow"
+3. Check logs for success/failure
+
+### Monitoring
+- **GitHub Actions**: View workflow runs in repository Actions tab
+- **Supabase Dashboard**: Query `health_checks` table to see ping history
+- **Admin Feature (Future)**: Dashboard widget showing last ping time
+
+### Important Notes
+⚠️ **This is insurance, not a guarantee**: Supabase may still pause if they detect only bot activity  
+✅ **Best practice before voting**: Admin logs in → creates vote → confirms DB is live → sends WhatsApp link  
+📊 **Cost**: Uses ~4 minutes/month of GitHub Actions (free tier: 2,000 min/month)
+
+---
+
 ## Future Enhancements (Ideas)
 
 - [ ] Email notifications when new votes are created
@@ -334,6 +403,7 @@ VALUES ('user-uuid-from-auth', 'admin');
 - [ ] Resident directory management
 - [ ] SMS notifications for elderly residents
 - [ ] Accessibility improvements (screen reader, high contrast mode)
+- [ ] Admin dashboard widget showing keep-alive status
 
 ---
 
