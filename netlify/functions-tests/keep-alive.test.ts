@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { handler } from './keep-alive';
+import { handler } from '../functions/keep-alive';
 import type { HandlerEvent, HandlerContext } from '@netlify/functions';
 
 // Mock timers for instant test execution
