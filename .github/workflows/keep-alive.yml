@@ -1,0 +1,54 @@
+name: Supabase Keep-Alive
+
+on:
+  # Schedule: Runs every Monday and Thursday at 9:00 AM UTC
+  # This keeps the database active to prevent Supabase free tier pausing
+  schedule:
+    - cron: '0 9 * * 1,4'  # Monday = 1, Thursday = 4
+  
+  # Allow manual triggering from GitHub Actions UI for testing
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping Keep-Alive Endpoint
+        id: ping
+        run: |
+          echo "🏓 Pinging Supabase keep-alive endpoint..."
+          echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          
+          response=$(curl -s -w "\n%{http_code}" \
+            -X POST \
+            -H "X-Keep-Alive-Secret: ${{ secrets.KEEP_ALIVE_SECRET }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.NETLIFY_SITE_URL }}/api/keep-alive")
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+          
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Keep-alive successful!"
+            echo "$body" | jq '.' 2>/dev/null || echo "$body"
+            exit 0
+          else
+            echo "❌ Keep-alive failed with status $http_code"
+            echo "$body"
+            exit 1
+          fi
+      
+      - name: Report Failure
+        if: failure()
+        run: |
+          echo "::error::Keep-alive ping failed. Check Netlify function logs for details."
+          echo "Possible causes:"
+          echo "  - KEEP_ALIVE_SECRET mismatch between GitHub and Netlify"
+          echo "  - Netlify function deployment failed"
+          echo "  - Supabase database connection issues"
+          echo "  - Network connectivity problems"
+

@@ -10,8 +10,20 @@
   # Required environment variables (set in Netlify dashboard):
   # VITE_SUPABASE_URL = "https://your-project.supabase.co"
   # VITE_SUPABASE_ANON_KEY = "your-anon-key"
+  # KEEP_ALIVE_SECRET = "your-random-32-char-secret"
 
-# SPA redirect - all routes go to index.html
+# Netlify Functions configuration
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# API endpoint for keep-alive function
+[[redirects]]
+  from = "/api/keep-alive"
+  to = "/.netlify/functions/keep-alive"
+  status = 200
+
+# SPA redirect - all routes go to index.html (must be last)
 [[redirects]]
   from = "/*"
   to = "/index.html"
