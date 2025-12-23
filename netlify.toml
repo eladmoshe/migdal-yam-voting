@@ -16,6 +16,8 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+  # Exclude test files from deployment
+  included_files = ["!**/*.test.ts", "!**/*.test.js"]
 
 # API endpoint for keep-alive function
 [[redirects]]
