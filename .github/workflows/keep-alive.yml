@@ -31,11 +31,37 @@ jobs:
           echo "✅ GitHub secrets are configured"
           echo "Target URL: ${{ secrets.NETLIFY_SITE_URL }}/api/keep-alive"
       
+      - name: Test Direct Function URL
+        id: test_direct
+        continue-on-error: true
+        run: |
+          echo "🔍 Testing direct function URL first..."
+          
+          direct_response=$(curl -s -w "\n%{http_code}" \
+            -X POST \
+            -H "X-Keep-Alive-Secret: ${{ secrets.KEEP_ALIVE_SECRET }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.NETLIFY_SITE_URL }}/.netlify/functions/keep-alive")
+          
+          direct_code=$(echo "$direct_response" | tail -n1)
+          direct_body=$(echo "$direct_response" | sed '$d')
+          
+          echo "Direct URL Status: $direct_code"
+          if [ "$direct_code" -eq 200 ]; then
+            echo "✅ Direct function URL works!"
+            echo "DIRECT_WORKS=true" >> $GITHUB_ENV
+          else
+            echo "❌ Direct function URL failed: $direct_code"
+            echo "Response: $direct_body"
+            echo "DIRECT_WORKS=false" >> $GITHUB_ENV
+          fi
+      
       - name: Ping Keep-Alive Endpoint
         id: ping
         run: |
-          echo "🏓 Pinging Supabase keep-alive endpoint..."
+          echo "🏓 Pinging Supabase keep-alive endpoint via redirect..."
           echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "Using URL: ${{ secrets.NETLIFY_SITE_URL }}/api/keep-alive"
           
           response=$(curl -s -w "\n%{http_code}" \
             -X POST \
@@ -69,8 +95,16 @@ jobs:
                 ;;
               404)
                 echo "::error::Function not found (404 Not Found)"
-                echo "The keep-alive function is not deployed or URL is incorrect"
-                echo "→ Check: Netlify Dashboard → Functions tab → Look for 'keep-alive'"
+                
+                if [ "$DIRECT_WORKS" = "true" ]; then
+                  echo "⚠️ Direct function URL works, but redirect doesn't!"
+                  echo "This is a redirect configuration issue in netlify.toml"
+                  echo "→ The function IS deployed, but /api/keep-alive redirect isn't working"
+                else
+                  echo "The keep-alive function is not deployed at all"
+                  echo "→ Check: Netlify Dashboard → Functions tab → Look for 'keep-alive'"
+                  echo "→ Check: Netlify build logs for deployment errors"
+                fi
                 ;;
               500)
                 echo "::error::Server error (500 Internal Server Error)"
