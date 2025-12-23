@@ -4,6 +4,7 @@ import { AdminLogin } from '../components/admin/AdminLogin';
 import { AdminDashboard } from '../components/admin/AdminDashboard';
 import { IssueDetails } from '../components/admin/IssueDetails';
 import { CreateIssue } from '../components/admin/CreateIssue';
+import { AuditLogPage } from '../components/admin/AuditLog';
 
 export function AdminPage() {
   const { isLoading, isCheckingAdmin, isAdmin, user } = useAuth();
@@ -59,6 +60,7 @@ export function AdminPage() {
       <Route index element={<AdminDashboard />} />
       <Route path="issues/new" element={<CreateIssue />} />
       <Route path="issues/:id" element={<IssueDetails />} />
+      <Route path="audit" element={<AuditLogPage />} />
     </Routes>
   );
 }

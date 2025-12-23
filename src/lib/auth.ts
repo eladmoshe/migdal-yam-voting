@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabase';
 import type { User, Session, AuthError } from '@supabase/supabase-js';
+import { logClientEvent } from './api';
 
 export interface AuthResult {
   user: User | null;
@@ -19,6 +20,31 @@ export async function adminLogin(
     password,
   });
 
+  // Log the login attempt (success or failure)
+  // Note: We log after the attempt so we can capture the result
+  if (data.user) {
+    // Successful login - log with user context
+    await logClientEvent(
+      'admin_login_success',
+      'auth',
+      null,
+      true,
+      null,
+      { email }
+    );
+  } else {
+    // Failed login - log without user context (anonymous)
+    // This is logged via the anon role since no user is authenticated
+    await logClientEvent(
+      'admin_login_failed',
+      'auth',
+      null,
+      false,
+      error?.message ?? 'Login failed',
+      { email }
+    );
+  }
+
   return {
     user: data.user,
     session: data.session,
@@ -30,6 +56,16 @@ export async function adminLogin(
  * Sign out the current admin user
  */
 export async function adminLogout(): Promise<{ error: AuthError | null }> {
+  // Log before signing out (while we still have user context)
+  await logClientEvent(
+    'admin_logout',
+    'auth',
+    null,
+    true,
+    null,
+    null
+  );
+
   const { error } = await supabase.auth.signOut();
   return { error };
 }
