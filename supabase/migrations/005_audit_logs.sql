@@ -121,8 +121,8 @@ BEGIN
 END;
 $$;
 
--- Grant execute only to authenticated and anon (for login logging)
-GRANT EXECUTE ON FUNCTION log_audit_event TO authenticated, anon;
+-- NOTE: No GRANT here - this is an internal function only called by other
+-- SECURITY DEFINER functions. It should not be directly callable by users.
 
 -- ============================================
 -- PUBLIC LOGGING FUNCTION FOR CLIENT-SIDE EVENTS
@@ -208,7 +208,6 @@ SET search_path = public
 AS $$
 DECLARE
   v_apartment RECORD;
-  v_success BOOLEAN := FALSE;
 BEGIN
   -- Find apartment and verify PIN hash
   SELECT id, number, owner_name, pin_hash INTO v_apartment
