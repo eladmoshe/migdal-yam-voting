@@ -33,21 +33,24 @@ A Hebrew-language voting application for apartment building residents in Migdal 
 ## Database & Backend (Supabase)
 
 ### Supabase Project Details
-- **Project URL**: `https://lgtuqxahholmqeczfnpb.supabase.co`
 - **Region**: West EU (London) - closest to Israel
-- **Project ID**: `lgtuqxahholmqeczfnpb`
+- **Project URL**: See `.env.local` (never commit this file!)
+- **Dashboard**: https://supabase.com/dashboard/project/[your-project-id]
 
 ### Environment Variables
 **Local Development** (`.env.local`):
 ```env
-VITE_SUPABASE_URL=https://lgtuqxahholmqeczfnpb.supabase.co
-VITE_SUPABASE_ANON_KEY=sb_publishable_9JdN5rVVo39axuTudaGeuw_lN6riiYX
-SUPABASE_SERVICE_KEY=sb_secret_MzB5v-sz8M28-izBVWHnxg_KqrIWVf9
+VITE_SUPABASE_URL=https://[your-project].supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_SERVICE_KEY=your-service-key-here
 ```
 
+**CRITICAL**: Never commit `.env.local` to git! It's in `.gitignore`.
+
 **Production (Netlify)**:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+Set these in Netlify Dashboard → Site Settings → Environment Variables:
+- `VITE_SUPABASE_URL` - Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Your publishable anon key
 - Note: Service key is NOT deployed to frontend (server-side only)
 
 ### Database Schema
