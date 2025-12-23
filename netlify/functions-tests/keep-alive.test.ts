@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handler } from '../functions/keep-alive';
-import type { HandlerEvent, HandlerContext } from '@netlify/functions';
+import type { HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/functions';
 
 // Mock timers for instant test execution
 vi.useFakeTimers();
@@ -78,6 +78,7 @@ const createMockEvent = (overrides: Partial<HandlerEvent> = {}): HandlerEvent =>
   headers: {
     'x-keep-alive-secret': 'test-secret-token',
   },
+  multiValueHeaders: {},
   body: null,
   isBase64Encoded: false,
   rawUrl: 'http://localhost/.netlify/functions/keep-alive',
@@ -118,10 +119,10 @@ describe('Keep-Alive Netlify Function', () => {
   describe('Authentication', () => {
     it('should return 401 when secret is missing', async () => {
       const event = createMockEvent({ headers: {} });
-      const response = await handler(event, mockContext);
+      const response = await handler(event, mockContext) as HandlerResponse;
 
       expect(response.statusCode).toBe(401);
-      expect(JSON.parse(response.body)).toEqual({
+      expect(JSON.parse(response.body!)).toEqual({
         error: 'Unauthorized. Invalid secret token.',
       });
     });
@@ -130,10 +131,10 @@ describe('Keep-Alive Netlify Function', () => {
       const event = createMockEvent({
         headers: { 'x-keep-alive-secret': 'wrong-secret' },
       });
-      const response = await handler(event, mockContext);
+      const response = await handler(event, mockContext) as HandlerResponse;
 
       expect(response.statusCode).toBe(401);
-      expect(JSON.parse(response.body)).toEqual({
+      expect(JSON.parse(response.body!)).toEqual({
         error: 'Unauthorized. Invalid secret token.',
       });
     });
@@ -141,10 +142,10 @@ describe('Keep-Alive Netlify Function', () => {
     it('should return 500 when KEEP_ALIVE_SECRET env var is missing', async () => {
       delete process.env.KEEP_ALIVE_SECRET;
       const event = createMockEvent();
-      const response = await handler(event, mockContext);
+      const response = await handler(event, mockContext) as HandlerResponse;
 
       expect(response.statusCode).toBe(500);
-      expect(JSON.parse(response.body)).toEqual({
+      expect(JSON.parse(response.body!)).toEqual({
         error: 'Server configuration error',
       });
     });
@@ -153,17 +154,17 @@ describe('Keep-Alive Netlify Function', () => {
   describe('HTTP Method Validation', () => {
     it('should return 405 for GET requests', async () => {
       const event = createMockEvent({ httpMethod: 'GET' });
-      const response = await handler(event, mockContext);
+      const response = await handler(event, mockContext) as HandlerResponse;
 
       expect(response.statusCode).toBe(405);
-      expect(JSON.parse(response.body)).toEqual({
+      expect(JSON.parse(response.body!)).toEqual({
         error: 'Method not allowed. Use POST.',
       });
     });
 
     it('should return 405 for PUT requests', async () => {
       const event = createMockEvent({ httpMethod: 'PUT' });
-      const response = await handler(event, mockContext);
+      const response = await handler(event, mockContext) as HandlerResponse;
 
       expect(response.statusCode).toBe(405);
     });
@@ -173,10 +174,10 @@ describe('Keep-Alive Netlify Function', () => {
     it('should return 500 when Supabase URL is missing', async () => {
       delete process.env.VITE_SUPABASE_URL;
       const event = createMockEvent();
-      const response = await handler(event, mockContext);
+      const response = await handler(event, mockContext) as HandlerResponse;
 
       expect(response.statusCode).toBe(500);
-      expect(JSON.parse(response.body)).toEqual({
+      expect(JSON.parse(response.body!)).toEqual({
         error: 'Database configuration error',
       });
     });
@@ -184,10 +185,10 @@ describe('Keep-Alive Netlify Function', () => {
     it('should return 500 when Supabase anon key is missing', async () => {
       delete process.env.VITE_SUPABASE_ANON_KEY;
       const event = createMockEvent();
-      const response = await handler(event, mockContext);
+      const response = await handler(event, mockContext) as HandlerResponse;
 
       expect(response.statusCode).toBe(500);
-      expect(JSON.parse(response.body)).toEqual({
+      expect(JSON.parse(response.body!)).toEqual({
         error: 'Database configuration error',
       });
     });
@@ -201,12 +202,12 @@ describe('Keep-Alive Netlify Function', () => {
       // Fast-forward through all delays
       await vi.runAllTimersAsync();
       
-      const response = await responsePromise;
+      const response = await responsePromise as HandlerResponse;
 
       expect(response.statusCode).toBe(200);
       expect(response.headers?.['Content-Type']).toBe('application/json');
       
-      const body = JSON.parse(response.body);
+      const body = JSON.parse(response.body!);
       expect(body.success).toBe(true);
       expect(body.stats).toEqual({
         apartments: 42,
@@ -226,9 +227,9 @@ describe('Keep-Alive Netlify Function', () => {
       // Fast-forward through all delays
       await vi.runAllTimersAsync();
       
-      const response = await responsePromise;
+      const response = await responsePromise as HandlerResponse;
 
-      const body = JSON.parse(response.body);
+      const body = JSON.parse(response.body!);
       expect(() => new Date(body.timestamp)).not.toThrow();
       expect(body.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     });
@@ -240,9 +241,9 @@ describe('Keep-Alive Netlify Function', () => {
       // Fast-forward through all delays
       await vi.runAllTimersAsync();
       
-      const response = await responsePromise;
+      const response = await responsePromise as HandlerResponse;
 
-      const body = JSON.parse(response.body);
+      const body = JSON.parse(response.body!);
       expect(body.performance.operationsCompleted).toBe(5);
       expect(body.performance).toHaveProperty('totalTimeMs');
     });
@@ -256,9 +257,9 @@ describe('Keep-Alive Netlify Function', () => {
       // Fast-forward through all delays
       await vi.runAllTimersAsync();
       
-      const response = await responsePromise;
+      const response = await responsePromise as HandlerResponse;
 
-      const body = JSON.parse(response.body);
+      const body = JSON.parse(response.body!);
       expect(body).toHaveProperty('success');
       expect(body).toHaveProperty('timestamp');
       expect(body).toHaveProperty('stats');
@@ -273,9 +274,9 @@ describe('Keep-Alive Netlify Function', () => {
       // Fast-forward through all delays
       await vi.runAllTimersAsync();
       
-      const response = await responsePromise;
+      const response = await responsePromise as HandlerResponse;
 
-      const body = JSON.parse(response.body);
+      const body = JSON.parse(response.body!);
       expect(body.stats).toHaveProperty('apartments');
       expect(body.stats).toHaveProperty('issues');
       expect(body.stats).toHaveProperty('votes');
@@ -291,9 +292,9 @@ describe('Keep-Alive Netlify Function', () => {
       // Fast-forward through all delays
       await vi.runAllTimersAsync();
       
-      const response = await responsePromise;
+      const response = await responsePromise as HandlerResponse;
 
-      const body = JSON.parse(response.body);
+      const body = JSON.parse(response.body!);
       expect(body.performance).toHaveProperty('totalTimeMs');
       expect(body.performance).toHaveProperty('operationsCompleted');
       expect(typeof body.performance.totalTimeMs).toBe('number');
