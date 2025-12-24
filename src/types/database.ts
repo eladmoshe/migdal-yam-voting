@@ -234,6 +234,32 @@ export interface Database {
           pin: string;
         };
       };
+      reset_apartment_pin: {
+        Args: { p_apartment_number: string };
+        Returns: {
+          apartment_id: string;
+          apartment_number: string;
+          owner_name: string;
+          pin: string;
+        };
+      };
+      update_apartment_owner: {
+        Args: { p_apartment_id: string; p_new_owner_name: string };
+        Returns: {
+          apartment_id: string;
+          apartment_number: string;
+          owner_name: string;
+        };
+      };
+      delete_apartment: {
+        Args: { p_apartment_id: string };
+        Returns: {
+          apartment_id: string;
+          apartment_number: string;
+          owner_name: string;
+          deleted_votes_count: number;
+        };
+      };
     };
   };
 }
