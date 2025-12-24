@@ -70,7 +70,7 @@ export function PINDisplayModal({
     // Create an informative WhatsApp message
     const message = `שלום ${recipientName},
 
-הודעה זו נשלחת אליך מהנהלת הבניין מגדל ים.
+הודעה זו נשלחת אליך מוועד הבית מגדל ים 4.
 
 קוד ה-PIN האישי שלך למערכת ההצבעות:
 
@@ -87,10 +87,10 @@ export function PINDisplayModal({
 כדי להצביע, היכנס לאתר:
 https://migdal-yam-voting.netlify.app
 
-בכל שאלה, ניתן לפנות להנהלת הבניין.
+בכל שאלה, ניתן לפנות לוועד הבית.
 
 בברכה,
-הנהלת הבניין מגדל ים`;
+וועד הבית מגדל ים 4`;
 
     // Create WhatsApp deep link
     const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
