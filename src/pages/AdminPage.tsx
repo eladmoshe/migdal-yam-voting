@@ -5,6 +5,7 @@ import { AdminDashboard } from '../components/admin/AdminDashboard';
 import { IssueDetails } from '../components/admin/IssueDetails';
 import { CreateIssue } from '../components/admin/CreateIssue';
 import { CreateApartment } from '../components/admin/CreateApartment';
+import { ResetPIN } from '../components/admin/ResetPIN';
 import { AuditLogPage } from '../components/admin/AuditLog';
 
 export function AdminPage() {
@@ -62,6 +63,7 @@ export function AdminPage() {
       <Route path="issues/new" element={<CreateIssue />} />
       <Route path="issues/:id" element={<IssueDetails />} />
       <Route path="apartments/new" element={<CreateApartment />} />
+      <Route path="apartments/reset-pin" element={<ResetPIN />} />
       <Route path="audit" element={<AuditLogPage />} />
     </Routes>
   );

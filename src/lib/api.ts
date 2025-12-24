@@ -408,3 +408,62 @@ export async function createApartment(
     },
   };
 }
+
+/**
+ * Reset apartment PIN (admin only)
+ * Generates a new PIN for an existing apartment
+ */
+export async function resetApartmentPin(
+  apartmentNumber: string
+): Promise<{ success: true; data: CreateApartmentResponse } | { success: false; error: string }> {
+  // Trim input
+  const trimmedNumber = apartmentNumber.trim();
+
+  const { data, error } = await rpc('reset_apartment_pin', {
+    p_apartment_number: trimmedNumber,
+  });
+
+  if (error) {
+    console.error('Error resetting apartment PIN:', error);
+
+    // Map database errors to user-friendly Hebrew messages
+    if (error.message?.includes('not found') || error.message?.includes('Apartment not found')) {
+      return { success: false, error: 'דירה לא נמצאה במערכת' };
+    }
+
+    if (error.message?.includes('Apartment number is required')) {
+      return { success: false, error: 'מספר דירה הוא שדה חובה' };
+    }
+
+    if (error.message?.includes('Authentication required')) {
+      return { success: false, error: 'נדרשת הזדהות כמנהל' };
+    }
+
+    if (error.message?.includes('Admin privileges required')) {
+      return { success: false, error: 'נדרשות הרשאות מנהל' };
+    }
+
+    // Generic error
+    return { success: false, error: 'אירעה שגיאה באיפוס הקוד' };
+  }
+
+  // Type assertion for the RPC response
+  type ResetPinRpcResponse = {
+    apartment_id: string;
+    apartment_number: string;
+    owner_name: string;
+    pin: string;
+  };
+
+  const result = data as ResetPinRpcResponse;
+
+  return {
+    success: true,
+    data: {
+      apartmentId: result.apartment_id,
+      apartmentNumber: result.apartment_number,
+      ownerName: result.owner_name,
+      pin: result.pin,
+    },
+  };
+}
