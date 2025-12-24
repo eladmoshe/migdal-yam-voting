@@ -467,3 +467,108 @@ export async function resetApartmentPin(
     },
   };
 }
+
+/**
+ * Update apartment owner name (admin only)
+ */
+export async function updateApartmentOwner(
+  apartmentId: string,
+  newOwnerName: string
+): Promise<{ success: true; data: Apartment } | { success: false; error: string }> {
+  // Trim input
+  const trimmedName = newOwnerName.trim();
+
+  const { data, error } = await rpc('update_apartment_owner', {
+    p_apartment_id: apartmentId,
+    p_new_owner_name: trimmedName,
+  });
+
+  if (error) {
+    console.error('Error updating apartment owner:', error);
+
+    // Map database errors to user-friendly Hebrew messages
+    if (error.message?.includes('not found') || error.message?.includes('Apartment not found')) {
+      return { success: false, error: 'דירה לא נמצאה במערכת' };
+    }
+
+    if (error.message?.includes('Owner name is required')) {
+      return { success: false, error: 'שם בעל הדירה הוא שדה חובה' };
+    }
+
+    if (error.message?.includes('Authentication required')) {
+      return { success: false, error: 'נדרשת הזדהות כמנהל' };
+    }
+
+    if (error.message?.includes('Admin privileges required')) {
+      return { success: false, error: 'נדרשות הרשאות מנהל' };
+    }
+
+    // Generic error
+    return { success: false, error: 'אירעה שגיאה בעדכון הדירה' };
+  }
+
+  // Type assertion for the RPC response
+  type UpdateOwnerRpcResponse = {
+    apartment_id: string;
+    apartment_number: string;
+    owner_name: string;
+  };
+
+  const result = data as UpdateOwnerRpcResponse;
+
+  return {
+    success: true,
+    data: {
+      id: result.apartment_id,
+      number: result.apartment_number,
+      ownerName: result.owner_name,
+    },
+  };
+}
+
+/**
+ * Delete apartment (admin only)
+ * WARNING: This also deletes all votes associated with the apartment
+ */
+export async function deleteApartment(
+  apartmentId: string
+): Promise<{ success: true; deletedVotesCount: number } | { success: false; error: string }> {
+  const { data, error } = await rpc('delete_apartment', {
+    p_apartment_id: apartmentId,
+  });
+
+  if (error) {
+    console.error('Error deleting apartment:', error);
+
+    // Map database errors to user-friendly Hebrew messages
+    if (error.message?.includes('not found') || error.message?.includes('Apartment not found')) {
+      return { success: false, error: 'דירה לא נמצאה במערכת' };
+    }
+
+    if (error.message?.includes('Authentication required')) {
+      return { success: false, error: 'נדרשת הזדהות כמנהל' };
+    }
+
+    if (error.message?.includes('Admin privileges required')) {
+      return { success: false, error: 'נדרשות הרשאות מנהל' };
+    }
+
+    // Generic error
+    return { success: false, error: 'אירעה שגיאה במחיקת הדירה' };
+  }
+
+  // Type assertion for the RPC response
+  type DeleteApartmentRpcResponse = {
+    apartment_id: string;
+    apartment_number: string;
+    owner_name: string;
+    deleted_votes_count: number;
+  };
+
+  const result = data as DeleteApartmentRpcResponse;
+
+  return {
+    success: true,
+    deletedVotesCount: result.deleted_votes_count,
+  };
+}

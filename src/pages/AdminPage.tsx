@@ -7,6 +7,7 @@ import { CreateIssue } from '../components/admin/CreateIssue';
 import { CreateApartment } from '../components/admin/CreateApartment';
 import { ResetPIN } from '../components/admin/ResetPIN';
 import { AuditLogPage } from '../components/admin/AuditLog';
+import { ApartmentManagement } from '../components/admin/ApartmentManagement';
 
 export function AdminPage() {
   const { isLoading, isCheckingAdmin, isAdmin, user } = useAuth();
@@ -62,6 +63,7 @@ export function AdminPage() {
       <Route index element={<AdminDashboard />} />
       <Route path="issues/new" element={<CreateIssue />} />
       <Route path="issues/:id" element={<IssueDetails />} />
+      <Route path="apartments" element={<ApartmentManagement />} />
       <Route path="apartments/new" element={<CreateApartment />} />
       <Route path="apartments/reset-pin" element={<ResetPIN />} />
       <Route path="audit" element={<AuditLogPage />} />
