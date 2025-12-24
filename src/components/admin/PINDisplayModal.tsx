@@ -6,6 +6,7 @@ export interface PINDisplayModalProps {
   ownerName: string;
   pin: string;
   onClose: () => void;
+  isReset?: boolean;
 }
 
 export function PINDisplayModal({
@@ -14,6 +15,7 @@ export function PINDisplayModal({
   ownerName,
   pin,
   onClose,
+  isReset = false,
 }: PINDisplayModalProps) {
   const [acknowledged, setAcknowledged] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -92,7 +94,7 @@ export function PINDisplayModal({
             </svg>
           </div>
           <h2 id="modal-title" className="text-2xl font-bold text-gray-800">
-            קוד PIN נוצר בהצלחה!
+            {isReset ? 'קוד PIN אופס בהצלחה!' : 'קוד PIN נוצר בהצלחה!'}
           </h2>
         </div>
 
