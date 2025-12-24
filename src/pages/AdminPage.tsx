@@ -4,6 +4,7 @@ import { AdminLogin } from '../components/admin/AdminLogin';
 import { AdminDashboard } from '../components/admin/AdminDashboard';
 import { IssueDetails } from '../components/admin/IssueDetails';
 import { CreateIssue } from '../components/admin/CreateIssue';
+import { CreateApartment } from '../components/admin/CreateApartment';
 import { AuditLogPage } from '../components/admin/AuditLog';
 
 export function AdminPage() {
@@ -60,6 +61,7 @@ export function AdminPage() {
       <Route index element={<AdminDashboard />} />
       <Route path="issues/new" element={<CreateIssue />} />
       <Route path="issues/:id" element={<IssueDetails />} />
+      <Route path="apartments/new" element={<CreateApartment />} />
       <Route path="audit" element={<AuditLogPage />} />
     </Routes>
   );

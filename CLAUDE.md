@@ -95,6 +95,8 @@ Located in `supabase/migrations/`:
 2. `002_rls_policies.sql` - Row Level Security policies
 3. `003_functions.sql` - RPC functions for validation and voting
 4. `004_health_checks.sql` - Keep-alive system table and triggers
+5. `005_audit_logs.sql` - Comprehensive audit logging system
+6. `006_create_apartment_function.sql` - Admin apartment creation with secure PIN generation
 
 **To apply migrations**: Run each file in order in Supabase SQL Editor
 
@@ -281,6 +283,24 @@ netlify.toml                  # Netlify deployment config
 2. Click on any issue
 3. View detailed breakdown by apartment number
 
+### Create a New Apartment (Admin)
+1. Log in to admin interface
+2. Click "הוספת דירה חדשה" (Add New Apartment) button
+3. Enter apartment number (e.g., "42" or "10A")
+4. Enter owner name in Hebrew
+5. Click "צור דירה" (Create Apartment)
+6. **IMPORTANT:** Copy the generated 6-digit PIN immediately
+   - The PIN is shown only once and cannot be retrieved later
+   - Use the copy button or write it down securely
+7. Share the PIN with the resident securely (WhatsApp, in-person, etc.)
+8. The apartment creation is automatically logged in the audit system
+
+**Security Notes:**
+- PINs are generated using cryptographically secure random number generation with rejection sampling (no modulo bias)
+- PINs are hashed with bcrypt (cost factor 10) before storage
+- All creation attempts (success and failures) are logged in the audit system
+- Only authenticated admins can create apartments
+
 ### Add New Admin User
 Run in Supabase SQL Editor:
 ```sql
@@ -396,15 +416,29 @@ NETLIFY_SITE_URL = https://migdal-yam-voting.netlify.app
 
 ## Future Enhancements (Ideas)
 
+### Apartment Management
+- [ ] List all apartments in admin dashboard
+- [ ] Edit apartment details (owner name)
+- [ ] Reset apartment PIN (for forgotten PINs)
+- [ ] Deactivate apartments (soft delete for moved-out residents)
+- [ ] Bulk apartment import via CSV
+
+### Voting Features
 - [ ] Email notifications when new votes are created
 - [ ] Vote deadline/expiration dates
 - [ ] Anonymous voting option (no apartment tracking)
 - [ ] Multiple vote types (yes/no/abstain, multiple choice)
 - [ ] Vote history visualization (charts)
-- [ ] Resident directory management
+
+### User Experience
 - [ ] SMS notifications for elderly residents
 - [ ] Accessibility improvements (screen reader, high contrast mode)
+- [ ] PIN reset by resident (self-service)
+
+### Admin Tools
 - [ ] Admin dashboard widget showing keep-alive status
+- [ ] Resident directory management
+- [ ] Audit log viewer in admin interface
 
 ---
 
@@ -413,6 +447,8 @@ NETLIFY_SITE_URL = https://migdal-yam-voting.netlify.app
 **Initial Implementation**: Mock data with in-memory state
 **Major Migration**: Moved to Supabase backend with PostgreSQL + RLS + Auth
 **Deployment**: Netlify with auto-deploy from GitHub master branch
+**Audit Logging System** (2025-12): Comprehensive audit trail for all system actions
+**Apartment Creation Feature** (2025-12): Admin can create apartments with secure auto-generated PINs
 
 **Key Design Decisions**:
 - Chose Supabase for integrated auth + database + real-time capabilities
