@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION create_apartment(
 RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
   v_apartment_id UUID;

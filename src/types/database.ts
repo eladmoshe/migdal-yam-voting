@@ -225,6 +225,15 @@ export interface Database {
           last_occurrence: string;
         }[];
       };
+      create_apartment: {
+        Args: { p_apartment_number: string; p_owner_name: string };
+        Returns: {
+          apartment_id: string;
+          apartment_number: string;
+          owner_name: string;
+          pin: string;
+        };
+      };
     };
   };
 }
