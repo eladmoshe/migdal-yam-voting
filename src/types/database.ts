@@ -10,6 +10,10 @@ export interface Database {
           number: string;
           pin_hash: string;
           owner_name: string;
+          phone_number_1: string | null;
+          owner_name_1: string | null;
+          phone_number_2: string | null;
+          owner_name_2: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -18,6 +22,10 @@ export interface Database {
           number: string;
           pin_hash: string;
           owner_name: string;
+          phone_number_1?: string | null;
+          owner_name_1?: string | null;
+          phone_number_2?: string | null;
+          owner_name_2?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -26,6 +34,10 @@ export interface Database {
           number?: string;
           pin_hash?: string;
           owner_name?: string;
+          phone_number_1?: string | null;
+          owner_name_1?: string | null;
+          phone_number_2?: string | null;
+          owner_name_2?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -226,11 +238,22 @@ export interface Database {
         }[];
       };
       create_apartment: {
-        Args: { p_apartment_number: string; p_owner_name: string };
+        Args: {
+          p_apartment_number: string;
+          p_owner_name: string;
+          p_phone_number_1?: string | null;
+          p_owner_name_1?: string | null;
+          p_phone_number_2?: string | null;
+          p_owner_name_2?: string | null;
+        };
         Returns: {
           apartment_id: string;
           apartment_number: string;
           owner_name: string;
+          phone_number_1: string | null;
+          owner_name_1: string | null;
+          phone_number_2: string | null;
+          owner_name_2: string | null;
           pin: string;
         };
       };

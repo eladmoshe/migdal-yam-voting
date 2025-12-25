@@ -100,6 +100,10 @@ describe('CreateApartment', () => {
           apartmentId: 'apt-123',
           apartmentNumber: '42',
           ownerName: 'משה לוי',
+          phoneNumber1: null,
+          ownerName1: null,
+          phoneNumber2: null,
+          ownerName2: null,
           pin: '123456',
         },
       });
@@ -176,6 +180,10 @@ describe('CreateApartment', () => {
           apartmentId: 'apt-123',
           apartmentNumber: '42',
           ownerName: 'משה לוי',
+          phoneNumber1: null,
+          ownerName1: null,
+          phoneNumber2: null,
+          ownerName2: null,
           pin: '123456',
         },
       });

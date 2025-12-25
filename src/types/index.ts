@@ -100,11 +100,19 @@ export interface AuditLogStats {
 export interface CreateApartmentRequest {
   apartmentNumber: string;
   ownerName: string;
+  phoneNumber1?: string;
+  ownerName1?: string;
+  phoneNumber2?: string;
+  ownerName2?: string;
 }
 
 export interface CreateApartmentResponse {
   apartmentId: string;
   apartmentNumber: string;
   ownerName: string;
+  phoneNumber1: string | null;
+  ownerName1: string | null;
+  phoneNumber2: string | null;
+  ownerName2: string | null;
   pin: string;
 }

@@ -349,15 +349,27 @@ export async function logClientEvent(
  */
 export async function createApartment(
   apartmentNumber: string,
-  ownerName: string
+  ownerName: string,
+  phoneNumber1?: string,
+  ownerName1?: string,
+  phoneNumber2?: string,
+  ownerName2?: string
 ): Promise<{ success: true; data: CreateApartmentResponse } | { success: false; error: string }> {
   // Trim inputs
   const trimmedNumber = apartmentNumber.trim();
   const trimmedName = ownerName.trim();
+  const trimmedPhone1 = phoneNumber1?.trim() || null;
+  const trimmedOwner1 = ownerName1?.trim() || null;
+  const trimmedPhone2 = phoneNumber2?.trim() || null;
+  const trimmedOwner2 = ownerName2?.trim() || null;
 
   const { data, error } = await rpc('create_apartment', {
     p_apartment_number: trimmedNumber,
     p_owner_name: trimmedName,
+    p_phone_number_1: trimmedPhone1,
+    p_owner_name_1: trimmedOwner1,
+    p_phone_number_2: trimmedPhone2,
+    p_owner_name_2: trimmedOwner2,
   });
 
   if (error) {
@@ -393,6 +405,10 @@ export async function createApartment(
     apartment_id: string;
     apartment_number: string;
     owner_name: string;
+    phone_number_1: string | null;
+    owner_name_1: string | null;
+    phone_number_2: string | null;
+    owner_name_2: string | null;
     pin: string;
   };
 
@@ -404,6 +420,10 @@ export async function createApartment(
       apartmentId: result.apartment_id,
       apartmentNumber: result.apartment_number,
       ownerName: result.owner_name,
+      phoneNumber1: result.phone_number_1,
+      ownerName1: result.owner_name_1,
+      phoneNumber2: result.phone_number_2,
+      ownerName2: result.owner_name_2,
       pin: result.pin,
     },
   };
@@ -463,6 +483,10 @@ export async function resetApartmentPin(
       apartmentId: result.apartment_id,
       apartmentNumber: result.apartment_number,
       ownerName: result.owner_name,
+      phoneNumber1: null,
+      ownerName1: null,
+      phoneNumber2: null,
+      ownerName2: null,
       pin: result.pin,
     },
   };
