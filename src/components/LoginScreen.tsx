@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useVoting } from '../context/VotingContext';
 import { validateCredentials } from '../lib/api';
+import { PinInput } from './PinInput';
 
 export function LoginScreen() {
   const { login } = useVoting();
@@ -30,7 +31,7 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex flex-col items-center justify-center p-6" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex flex-col items-center justify-center p-6" dir="rtl">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
@@ -39,24 +40,24 @@ export function LoginScreen() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">מגדל ים</h1>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2 drop-shadow-sm">מגדל ים</h1>
           <h2 className="text-xl text-blue-600 font-medium">קלפי דיגיטלית</h2>
         </div>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="card card-elevated p-8">
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Apartment Number */}
             <div>
               <label
                 htmlFor="apartment"
-                className="block text-lg font-semibold text-gray-700 mb-3"
+                className="block text-xl font-semibold text-gray-800 mb-4 text-right"
               >
                 מספר דירה
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                   </svg>
                 </div>
@@ -67,7 +68,7 @@ export function LoginScreen() {
                   pattern="[0-9]*"
                   value={apartmentNumber}
                   onChange={(e) => setApartmentNumber(e.target.value)}
-                  className="w-full text-2xl p-4 pr-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 text-center transition-all"
+                  className="w-full text-3xl p-5 pr-14 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 text-center transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="לדוגמה: 5"
                   required
                   autoComplete="off"
@@ -78,36 +79,20 @@ export function LoginScreen() {
             {/* PIN */}
             <div>
               <label
-                htmlFor="pin"
-                className="block text-lg font-semibold text-gray-700 mb-3"
+                className="block text-xl font-semibold text-gray-800 mb-4 text-right"
               >
                 קוד PIN (5 ספרות)
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
-                <input
-                  type="password"
-                  id="pin"
-                  inputMode="numeric"
-                  pattern="[0-9]{5}"
-                  maxLength={5}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                  className="w-full text-2xl p-4 pr-12 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 text-center tracking-[0.5em] transition-all"
-                  placeholder="● ● ● ● ●"
-                  required
-                  autoComplete="off"
-                />
-              </div>
+              <PinInput
+                value={pin}
+                onChange={setPin}
+                error={!!error}
+              />
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-lg text-center flex items-center justify-center gap-2">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl text-lg text-center flex items-center justify-center gap-2">
                 <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -119,7 +104,7 @@ export function LoginScreen() {
             <button
               type="submit"
               disabled={isLoading || !apartmentNumber || pin.length !== 5}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 text-white text-2xl font-bold py-5 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-200 shadow-lg shadow-blue-200 disabled:shadow-none flex items-center justify-center gap-3"
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 text-white text-2xl font-bold py-5 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-200 shadow-lg shadow-blue-200 disabled:shadow-none flex items-center justify-center gap-3 transform hover:scale-[1.01] active:scale-[0.99] disabled:transform-none"
             >
               {isLoading ? (
                 <>
@@ -140,14 +125,11 @@ export function LoginScreen() {
 
         {/* Help text */}
         <div className="text-center mt-6">
-          <p className="text-gray-500 text-base">
-            הקוד נשלח לבעלי הדירות בלבד
-          </p>
-          <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-400">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="inline-flex items-center gap-2 text-gray-600 bg-white/70 backdrop-blur-sm px-4 py-3 rounded-xl shadow-sm">
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            מאובטח ומוגן
+            <span className="text-base">הקוד נשלח לבעלי הדירות בלבד</span>
           </div>
         </div>
       </div>
