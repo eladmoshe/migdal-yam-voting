@@ -67,10 +67,10 @@ export function VotingScreen({ apartment, issue, onLogout }: VotingScreenProps) 
   // Loading state while checking vote status
   if (isCheckingVote) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex flex-col items-center justify-center p-6" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex flex-col items-center justify-center p-6" dir="rtl">
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xl text-blue-700 font-medium">בודק סטטוס הצבעה...</p>
+          <div className="spinner mx-auto mb-6"></div>
+          <p className="text-xl text-gray-600 font-medium">בודק סטטוס הצבעה...</p>
         </div>
       </div>
     );
@@ -79,11 +79,11 @@ export function VotingScreen({ apartment, issue, onLogout }: VotingScreenProps) 
   // Already voted view
   if (hasVoted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex flex-col items-center justify-center p-6" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 flex flex-col items-center justify-center p-6" dir="rtl">
         <div className="w-full max-w-md text-center">
-          <div className="bg-white rounded-3xl shadow-xl p-8 border border-green-100">
+          <div className="card card-elevated p-8">
             {/* Success checkmark */}
-            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-200">
               <svg
                 className="w-14 h-14 text-white drop-shadow-sm"
                 fill="none"
@@ -101,46 +101,79 @@ export function VotingScreen({ apartment, issue, onLogout }: VotingScreenProps) 
 
             <h1 className="text-4xl font-bold text-green-800 mb-4">תודה רבה!</h1>
             <p className="text-xl text-gray-700 mb-2 font-medium">הצבעתך נקלטה בהצלחה</p>
-            <p className="text-lg text-gray-600 mb-8">דירה {apartment.number}</p>
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-base mb-6">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              דירה {apartment.number}
+            </div>
 
             {votedValue && (
-              <div className="mb-6 p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 shadow-sm">
-                <p className="text-lg text-gray-600 mb-2">הצבעת:</p>
-                <p className={`text-3xl font-bold ${votedValue === 'yes' ? 'text-green-600' : 'text-red-600'}`}>
-                  {votedValue === 'yes' ? 'בעד' : 'נגד'}
-                </p>
+              <div className="mb-6 p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                <p className="text-base text-gray-500 mb-2">הצבעת:</p>
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xl font-bold ${
+                  votedValue === 'yes'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-red-100 text-red-700'
+                }`}>
+                  {votedValue === 'yes' ? (
+                    <>
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      בעד
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      נגד
+                    </>
+                  )}
+                </div>
               </div>
             )}
 
             {/* Show results toggle */}
             <button
               onClick={handleToggleResults}
-              className="w-full bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-800 text-xl font-semibold py-4 px-6 rounded-xl transition-all duration-200 mb-4 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-200 mb-4 flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99]"
             >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
               {showResults ? 'הסתר תוצאות' : 'הצג תוצאות ביניים'}
             </button>
 
             {showResults && (
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl mb-4 border border-blue-200 shadow-sm">
-                <p className="text-lg font-semibold text-blue-900 mb-4">תוצאות עד כה:</p>
-                <div className="flex justify-around">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl mb-4 border border-blue-100">
+                <p className="text-base font-semibold text-gray-700 mb-4">תוצאות עד כה:</p>
+                <div className="flex justify-around mb-4">
                   <div className="text-center">
-                    <p className="text-4xl font-bold text-green-600 mb-1">{results.yes}</p>
-                    <p className="text-lg text-gray-600 font-medium">בעד</p>
+                    <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-green-100 flex items-center justify-center">
+                      <span className="text-2xl font-bold text-green-600">{results.yes}</span>
+                    </div>
+                    <p className="text-base text-gray-600 font-medium">בעד</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-4xl font-bold text-red-600 mb-1">{results.no}</p>
-                    <p className="text-lg text-gray-600 font-medium">נגד</p>
+                    <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-red-100 flex items-center justify-center">
+                      <span className="text-2xl font-bold text-red-600">{results.no}</span>
+                    </div>
+                    <p className="text-base text-gray-600 font-medium">נגד</p>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-4 font-medium">סה"כ הצביעו: {results.total} דירות</p>
+                <p className="text-sm text-gray-500">סה"כ הצביעו: {results.total} דירות</p>
               </div>
             )}
 
             <button
               onClick={onLogout}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-xl font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xl font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-blue-200 flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99]"
             >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
               יציאה
             </button>
           </div>
@@ -151,20 +184,25 @@ export function VotingScreen({ apartment, issue, onLogout }: VotingScreenProps) 
 
   // Voting view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex flex-col items-center justify-center p-6" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex flex-col items-center justify-center p-6" dir="rtl">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <p className="text-lg text-blue-700 mb-2 font-medium">שלום, דירה {apartment.number}</p>
-          <h1 className="text-4xl font-bold text-blue-900 drop-shadow-sm">הצבעה</h1>
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-base mb-3">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            שלום, דירה {apartment.number}
+          </div>
+          <h1 className="text-3xl font-bold text-gray-800 drop-shadow-sm">הצבעה</h1>
         </div>
 
         {/* Voting Card */}
-        <div className="bg-white rounded-3xl shadow-xl p-8 border border-blue-100">
+        <div className="card card-elevated p-8">
           {/* Issue details */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">{issue.title}</h2>
-            <p className="text-xl text-gray-700 leading-relaxed">{issue.description}</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{issue.title}</h2>
+            <p className="text-lg text-gray-600 leading-relaxed">{issue.description}</p>
           </div>
 
           {/* Voting buttons */}
@@ -177,7 +215,7 @@ export function VotingScreen({ apartment, issue, onLogout }: VotingScreenProps) 
             <button
               onClick={() => handleVote('yes')}
               disabled={isVoting}
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-400 text-white text-3xl font-bold py-6 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-green-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl disabled:shadow-md transform hover:scale-[1.02] active:scale-[0.98] disabled:transform-none"
+              className="w-full bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 disabled:from-gray-300 disabled:to-gray-400 text-white text-3xl font-bold py-6 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-green-200 flex items-center justify-center gap-3 shadow-lg shadow-green-200 disabled:shadow-none transform hover:scale-[1.02] active:scale-[0.98] disabled:transform-none"
             >
               <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -189,7 +227,7 @@ export function VotingScreen({ apartment, issue, onLogout }: VotingScreenProps) 
             <button
               onClick={() => handleVote('no')}
               disabled={isVoting}
-              className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-400 disabled:to-gray-400 text-white text-3xl font-bold py-6 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-red-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl disabled:shadow-md transform hover:scale-[1.02] active:scale-[0.98] disabled:transform-none"
+              className="w-full bg-gradient-to-r from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 disabled:from-gray-300 disabled:to-gray-400 text-white text-3xl font-bold py-6 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-red-200 flex items-center justify-center gap-3 shadow-lg shadow-red-200 disabled:shadow-none transform hover:scale-[1.02] active:scale-[0.98] disabled:transform-none"
             >
               <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
@@ -199,11 +237,8 @@ export function VotingScreen({ apartment, issue, onLogout }: VotingScreenProps) 
           </div>
 
           {isVoting && (
-            <div className="text-center text-xl text-blue-600 mt-6 flex items-center justify-center gap-3">
-              <svg className="animate-spin h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
+            <div className="flex items-center justify-center gap-3 text-xl text-blue-600 mt-6">
+              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
               <span className="font-medium">מקליט הצבעה...</span>
             </div>
           )}
@@ -212,8 +247,11 @@ export function VotingScreen({ apartment, issue, onLogout }: VotingScreenProps) 
         {/* Logout button */}
         <button
           onClick={onLogout}
-          className="w-full mt-6 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full mt-6 bg-white hover:bg-gray-50 text-gray-600 text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-200 border border-gray-200 flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99]"
         >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
           יציאה ללא הצבעה
         </button>
       </div>

@@ -136,18 +136,24 @@ export function ApartmentManagement() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-100" dir="rtl">
+      <div className="min-h-screen" dir="rtl">
         {/* Header */}
-        <header className="bg-white shadow">
-          <div className="max-w-6xl mx-auto px-4 py-4">
-            <Link to="/admin" className="text-blue-600 hover:text-blue-700 text-sm mb-2 inline-block">
-              ← חזרה לרשימה
+        <header className="header-modern sticky top-0 z-10">
+          <div className="max-w-6xl mx-auto px-6 py-4">
+            <Link
+              to="/admin"
+              className="text-gray-500 hover:text-blue-600 text-sm inline-flex items-center gap-1 mb-2 transition-colors"
+            >
+              <svg className="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              חזרה לרשימה
             </Link>
             <div className="flex justify-between items-center">
               <h1 className="text-2xl font-bold text-gray-800">ניהול דירות</h1>
               <Link
                 to="/admin/apartments/new"
-                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2"
+                className="btn btn-secondary"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -158,114 +164,134 @@ export function ApartmentManagement() {
           </div>
         </header>
 
-        <main className="max-w-6xl mx-auto px-4 py-8">
+        <main className="max-w-6xl mx-auto px-6 py-8">
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
-              {error}
+            <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {error}
+              </div>
               <button
                 onClick={() => setError(null)}
-                className="mr-4 text-red-900 hover:text-red-950 font-semibold"
+                className="text-red-600 hover:text-red-800 font-semibold p-1 hover:bg-red-100 rounded transition-colors"
               >
-                ✕
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
           )}
 
           {/* Loading State */}
           {isLoading && (
-            <div className="text-center py-12">
-              <div className="w-8 h-8 mx-auto border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="text-center py-16">
+              <div className="spinner mx-auto"></div>
+              <p className="text-gray-500 mt-4">טוען נתונים...</p>
             </div>
           )}
 
           {/* Apartments Table */}
           {!isLoading && (
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50">
+            <div className="card overflow-hidden">
+              <table className="w-full table-modern">
+                <thead>
                   <tr>
-                    <th className="px-6 py-3 text-right text-sm font-semibold text-gray-600">
-                      מספר דירה
-                    </th>
-                    <th className="px-6 py-3 text-right text-sm font-semibold text-gray-600">
-                      שם בעל הדירה
-                    </th>
-                    <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600">
-                      פעולות
-                    </th>
+                    <th className="text-right">מספר דירה</th>
+                    <th className="text-right">שם בעל הדירה</th>
+                    <th className="text-center">פעולות</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody>
                   {apartments.length === 0 ? (
                     <tr>
-                      <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
-                        אין דירות במערכת
+                      <td colSpan={3} className="text-center py-12">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-500">אין דירות במערכת</p>
+                        <p className="text-sm text-gray-400 mt-1">הוסף את הדירה הראשונה</p>
                       </td>
                     </tr>
                   ) : (
                     apartments.map((apartment) => (
-                      <tr key={apartment.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4">
-                          <div className="font-medium text-gray-800 text-lg">
-                            {apartment.number}
+                      <tr key={apartment.id}>
+                        <td>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                              {apartment.number}
+                            </div>
+                            <span className="font-medium text-gray-800">דירה {apartment.number}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td>
                           {editingId === apartment.id ? (
                             <input
                               type="text"
                               value={editingName}
                               onChange={(e) => setEditingName(e.target.value)}
-                              className="w-full text-lg p-2 border border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                              className="w-full text-base p-2.5 border-2 border-blue-400 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-blue-50"
                               disabled={isUpdating}
                               autoFocus
                             />
                           ) : (
-                            <div className="text-gray-800">{apartment.ownerName}</div>
+                            <span className="text-gray-700">{apartment.ownerName}</span>
                           )}
                         </td>
-                        <td className="px-6 py-4">
+                        <td>
                           {editingId === apartment.id ? (
                             <div className="flex justify-center gap-2">
                               <button
                                 onClick={() => handleSaveEdit(apartment.id)}
                                 disabled={isUpdating || !editingName.trim()}
-                                className="text-green-600 hover:text-green-800 text-sm font-medium disabled:text-gray-400"
+                                className="btn btn-success py-1.5 px-3 text-sm disabled:opacity-50"
                               >
                                 {isUpdating ? 'שומר...' : 'שמור'}
                               </button>
                               <button
                                 onClick={handleCancelEdit}
                                 disabled={isUpdating}
-                                className="text-gray-600 hover:text-gray-800 text-sm font-medium disabled:text-gray-400"
+                                className="text-gray-600 hover:text-gray-800 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
                               >
                                 ביטול
                               </button>
                             </div>
                           ) : (
-                            <div className="flex justify-center gap-3">
+                            <div className="flex justify-center gap-2">
                               <button
                                 onClick={() => handleStartEdit(apartment)}
-                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
                                 title="עריכת שם"
                               >
-                                ✏️ שם
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                שם
                               </button>
                               <button
                                 onClick={() => handleResetPIN(apartment.number)}
                                 disabled={isResetting}
-                                className="text-orange-600 hover:text-orange-800 text-sm font-medium disabled:text-gray-400"
+                                className="inline-flex items-center gap-1.5 text-amber-600 hover:text-amber-800 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-amber-50 transition-colors disabled:opacity-50"
                                 title="איפוס PIN"
                               >
-                                🔑 PIN
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                </svg>
+                                PIN
                               </button>
                               <button
                                 onClick={() => handleDeleteClick(apartment.id)}
-                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                className="inline-flex items-center gap-1.5 text-red-600 hover:text-red-800 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
                                 title="מחיקת דירה"
                               >
-                                🗑️ מחק
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                מחק
                               </button>
                             </div>
                           )}
@@ -279,40 +305,51 @@ export function ApartmentManagement() {
           )}
 
           {/* Info Box */}
-          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <svg
-                className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div className="text-sm text-blue-800">
-                <p className="font-semibold mb-1">מידע חשוב:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li><strong>שם</strong> - עריכת שם בעל הדירה</li>
-                  <li><strong>PIN</strong> - יצירת קוד חדש (הקוד הישן יפסיק לעבוד)</li>
-                  <li><strong>מחק</strong> - מחיקת דירה (גם כל ההצבעות שלה!)</li>
-                </ul>
+          {!isLoading && apartments.length > 0 && (
+            <div className="info-box mt-6">
+              <div className="flex items-start gap-3">
+                <svg
+                  className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div className="text-sm text-blue-800">
+                  <p className="font-semibold mb-2">מידע חשוב:</p>
+                  <ul className="space-y-1.5">
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                      <strong>שם</strong> - עריכת שם בעל הדירה
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      <strong>PIN</strong> - יצירת קוד חדש (הקוד הישן יפסיק לעבוד)
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                      <strong>מחק</strong> - מחיקת דירה (גם כל ההצבעות שלה!)
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </main>
       </div>
 
       {/* Delete Confirmation Modal */}
       {deletingId && apartmentToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" dir="rtl">
-          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir="rtl">
+          <div className="card p-6 max-w-md w-full animate-in fade-in zoom-in duration-200">
+            <div className="flex items-start gap-4 mb-5">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
                 <svg
                   className="w-6 h-6 text-red-600"
                   fill="none"
@@ -327,20 +364,31 @@ export function ApartmentManagement() {
                   />
                 </svg>
               </div>
-              <div>
+              <div className="flex-1">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">אישור מחיקה</h3>
-                <p className="text-gray-700 mb-2">
-                  האם אתה בטוח שברצונך למחוק את הדירה:
+                <p className="text-gray-600 mb-3">
+                  האם אתה בטוח שברצונך למחוק את הדירה?
                 </p>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-3">
-                  <p className="font-semibold text-lg">דירה {apartmentToDelete.number}</p>
-                  <p className="text-gray-600">{apartmentToDelete.ownerName}</p>
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center text-white font-bold text-sm">
+                      {apartmentToDelete.number}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800">דירה {apartmentToDelete.number}</p>
+                      <p className="text-sm text-gray-500">{apartmentToDelete.ownerName}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-red-800 text-sm font-semibold">⚠️ אזהרה!</p>
-                  <p className="text-red-700 text-sm">
-                    פעולה זו תמחק גם את כל ההצבעות של הדירה ולא ניתן לבטלה!
-                  </p>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+                  <div className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <p className="text-red-700 text-sm">
+                      פעולה זו תמחק גם את כל ההצבעות של הדירה ולא ניתן לבטלה!
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -349,14 +397,14 @@ export function ApartmentManagement() {
               <button
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg disabled:bg-gray-400"
+                className="flex-1 btn btn-danger py-3 disabled:opacity-50"
               >
                 {isDeleting ? 'מוחק...' : 'כן, מחק'}
               </button>
               <button
                 onClick={handleCancelDelete}
                 disabled={isDeleting}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-lg disabled:bg-gray-100"
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50"
               >
                 ביטול
               </button>

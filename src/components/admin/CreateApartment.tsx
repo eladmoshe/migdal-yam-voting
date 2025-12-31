@@ -57,25 +57,31 @@ export function CreateApartment() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-100" dir="rtl">
+      <div className="min-h-screen" dir="rtl">
         {/* Header */}
-        <header className="bg-white shadow">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <Link to="/admin" className="text-blue-600 hover:text-blue-700 text-sm mb-2 inline-block">
-              ← חזרה לרשימה
+        <header className="header-modern sticky top-0 z-10">
+          <div className="max-w-4xl mx-auto px-6 py-4">
+            <Link
+              to="/admin/apartments"
+              className="text-gray-500 hover:text-blue-600 text-sm inline-flex items-center gap-1 mb-2 transition-colors"
+            >
+              <svg className="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              חזרה לניהול דירות
             </Link>
             <h1 className="text-2xl font-bold text-gray-800">יצירת דירה חדשה</h1>
           </div>
         </header>
 
-        <main className="max-w-4xl mx-auto px-4 py-8">
-          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6">
+        <main className="max-w-4xl mx-auto px-6 py-8">
+          <form onSubmit={handleSubmit} className="card p-6">
             <div className="space-y-6">
               {/* Apartment Number */}
               <div>
                 <label
                   htmlFor="apartmentNumber"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
                   מספר דירה
                 </label>
@@ -84,7 +90,7 @@ export function CreateApartment() {
                   id="apartmentNumber"
                   value={apartmentNumber}
                   onChange={(e) => setApartmentNumber(e.target.value)}
-                  className="w-full text-lg p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full text-lg p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
                   placeholder="לדוגמה: 42 או 10A"
                   required
                   disabled={isLoading}
@@ -95,7 +101,7 @@ export function CreateApartment() {
               <div>
                 <label
                   htmlFor="ownerName"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
                   שם בעל הדירה
                 </label>
@@ -104,7 +110,7 @@ export function CreateApartment() {
                   id="ownerName"
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
-                  className="w-full text-lg p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full text-lg p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
                   placeholder="לדוגמה: משה לוי"
                   required
                   disabled={isLoading}
@@ -112,22 +118,25 @@ export function CreateApartment() {
               </div>
 
               {/* Phone Numbers Section */}
-              <div className="border-t border-gray-200 pt-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <div className="border-t border-gray-100 pt-6">
+                <h3 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
                   פרטי התקשרות להעברת PIN (אופציונלי)
                 </h3>
 
                 {/* Phone 1 */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    טלפון 1
+                <div className="mb-4 bg-gray-50 p-4 rounded-xl">
+                  <label className="block text-sm font-medium text-gray-600 mb-3">
+                    איש קשר 1
                   </label>
                   <div className="grid grid-cols-2 gap-4">
                     <input
                       type="tel"
                       value={phoneNumber1}
                       onChange={(e) => setPhoneNumber1(e.target.value)}
-                      className="text-lg p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="text-base p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
                       placeholder="מספר טלפון"
                       disabled={isLoading}
                     />
@@ -135,24 +144,24 @@ export function CreateApartment() {
                       type="text"
                       value={ownerName1}
                       onChange={(e) => setOwnerName1(e.target.value)}
-                      className="text-lg p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                      placeholder="שם הבעלים"
+                      className="text-base p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+                      placeholder="שם איש הקשר"
                       disabled={isLoading}
                     />
                   </div>
                 </div>
 
                 {/* Phone 2 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    טלפון 2
+                <div className="bg-gray-50 p-4 rounded-xl">
+                  <label className="block text-sm font-medium text-gray-600 mb-3">
+                    איש קשר 2
                   </label>
                   <div className="grid grid-cols-2 gap-4">
                     <input
                       type="tel"
                       value={phoneNumber2}
                       onChange={(e) => setPhoneNumber2(e.target.value)}
-                      className="text-lg p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="text-base p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
                       placeholder="מספר טלפון"
                       disabled={isLoading}
                     />
@@ -160,8 +169,8 @@ export function CreateApartment() {
                       type="text"
                       value={ownerName2}
                       onChange={(e) => setOwnerName2(e.target.value)}
-                      className="text-lg p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                      placeholder="שם הבעלים"
+                      className="text-base p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+                      placeholder="שם איש הקשר"
                       disabled={isLoading}
                     />
                   </div>
@@ -169,7 +178,7 @@ export function CreateApartment() {
               </div>
 
               {/* Info Box */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="info-box">
                 <div className="flex items-start gap-3">
                   <svg
                     className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
@@ -196,7 +205,10 @@ export function CreateApartment() {
 
               {/* Error */}
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-xl flex items-center gap-3">
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                   {error}
                 </div>
               )}
@@ -205,13 +217,21 @@ export function CreateApartment() {
               <button
                 type="submit"
                 disabled={!isFormValid || isLoading}
-                className={`w-full py-3 px-4 rounded-lg font-medium text-white transition-colors ${
-                  !isFormValid || isLoading
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+                className="w-full btn btn-primary py-3.5 disabled:opacity-50"
               >
-                {isLoading ? 'יוצר דירה...' : 'צור דירה'}
+                {isLoading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    יוצר דירה...
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    צור דירה
+                  </div>
+                )}
               </button>
             </div>
           </form>
