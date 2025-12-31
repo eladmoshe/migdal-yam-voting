@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest';
+
 /**
  * Test phone number formatting for WhatsApp
  * Israeli local format -> International format
