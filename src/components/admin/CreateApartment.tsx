@@ -7,6 +7,10 @@ import type { CreateApartmentResponse } from '../../types';
 export function CreateApartment() {
   const [apartmentNumber, setApartmentNumber] = useState('');
   const [ownerName, setOwnerName] = useState('');
+  const [phoneNumber1, setPhoneNumber1] = useState('');
+  const [ownerName1, setOwnerName1] = useState('');
+  const [phoneNumber2, setPhoneNumber2] = useState('');
+  const [ownerName2, setOwnerName2] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [createdApartment, setCreatedApartment] = useState<CreateApartmentResponse | null>(null);
@@ -17,7 +21,14 @@ export function CreateApartment() {
     setIsLoading(true);
 
     try {
-      const result = await createApartment(apartmentNumber, ownerName);
+      const result = await createApartment(
+        apartmentNumber,
+        ownerName,
+        phoneNumber1 || undefined,
+        ownerName1 || undefined,
+        phoneNumber2 || undefined,
+        ownerName2 || undefined
+      );
 
       if (result.success) {
         setCreatedApartment(result.data);
@@ -36,6 +47,10 @@ export function CreateApartment() {
     setCreatedApartment(null);
     setApartmentNumber('');
     setOwnerName('');
+    setPhoneNumber1('');
+    setOwnerName1('');
+    setPhoneNumber2('');
+    setOwnerName2('');
   };
 
   const isFormValid = apartmentNumber.trim() !== '' && ownerName.trim() !== '';
@@ -96,6 +111,63 @@ export function CreateApartment() {
                 />
               </div>
 
+              {/* Phone Numbers Section */}
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  פרטי התקשרות להעברת PIN (אופציונלי)
+                </h3>
+
+                {/* Phone 1 */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    טלפון 1
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="tel"
+                      value={phoneNumber1}
+                      onChange={(e) => setPhoneNumber1(e.target.value)}
+                      className="text-lg p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="מספר טלפון"
+                      disabled={isLoading}
+                    />
+                    <input
+                      type="text"
+                      value={ownerName1}
+                      onChange={(e) => setOwnerName1(e.target.value)}
+                      className="text-lg p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="שם הבעלים"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {/* Phone 2 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    טלפון 2
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="tel"
+                      value={phoneNumber2}
+                      onChange={(e) => setPhoneNumber2(e.target.value)}
+                      className="text-lg p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="מספר טלפון"
+                      disabled={isLoading}
+                    />
+                    <input
+                      type="text"
+                      value={ownerName2}
+                      onChange={(e) => setOwnerName2(e.target.value)}
+                      className="text-lg p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      placeholder="שם הבעלים"
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Info Box */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
@@ -153,6 +225,10 @@ export function CreateApartment() {
           apartmentNumber={createdApartment.apartmentNumber}
           ownerName={createdApartment.ownerName}
           pin={createdApartment.pin}
+          phoneNumber1={createdApartment.phoneNumber1}
+          ownerName1={createdApartment.ownerName1}
+          phoneNumber2={createdApartment.phoneNumber2}
+          ownerName2={createdApartment.ownerName2}
           onClose={handleModalClose}
         />
       )}
