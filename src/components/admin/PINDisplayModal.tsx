@@ -64,8 +64,17 @@ export function PINDisplayModal({
   };
 
   const handleWhatsAppShare = (phoneNumber: string, recipientName: string) => {
-    // Format the phone number (remove non-digits, ensure it starts with country code)
-    const cleanPhone = phoneNumber.replace(/\D/g, '');
+    // Format the phone number (remove non-digits, convert to international format)
+    let cleanPhone = phoneNumber.replace(/\D/g, '');
+
+    // Convert Israeli local format to international format
+    // Local: 0547744004 -> International: 972547744004
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = '972' + cleanPhone.substring(1);
+    } else if (!cleanPhone.startsWith('972')) {
+      // If doesn't start with 0 or 972, assume it's missing the leading 0
+      cleanPhone = '972' + cleanPhone;
+    }
 
     // Create an informative WhatsApp message
     const message = `שלום ${recipientName},
