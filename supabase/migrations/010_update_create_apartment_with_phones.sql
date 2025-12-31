@@ -2,6 +2,11 @@
 -- UPDATE CREATE APARTMENT FUNCTION WITH PHONE NUMBERS
 -- Updated to support phone numbers for WhatsApp PIN sharing
 -- ============================================
+
+-- Drop the old function first (it has only 2 parameters)
+-- This is necessary because PostgreSQL treats functions with different signatures as different functions
+DROP FUNCTION IF EXISTS create_apartment(TEXT, TEXT);
+
 CREATE OR REPLACE FUNCTION create_apartment(
   p_apartment_number TEXT,
   p_owner_name TEXT,
@@ -168,5 +173,5 @@ BEGIN
 END;
 $$;
 
--- Keep existing permissions
-GRANT EXECUTE ON FUNCTION create_apartment TO authenticated;
+-- Keep existing permissions (with explicit signature)
+GRANT EXECUTE ON FUNCTION create_apartment(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT) TO authenticated;
