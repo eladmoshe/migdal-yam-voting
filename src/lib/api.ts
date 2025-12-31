@@ -472,6 +472,10 @@ export async function resetApartmentPin(
     apartment_id: string;
     apartment_number: string;
     owner_name: string;
+    phone_number_1: string | null;
+    owner_name_1: string | null;
+    phone_number_2: string | null;
+    owner_name_2: string | null;
     pin: string;
   };
 
@@ -483,10 +487,10 @@ export async function resetApartmentPin(
       apartmentId: result.apartment_id,
       apartmentNumber: result.apartment_number,
       ownerName: result.owner_name,
-      phoneNumber1: null,
-      ownerName1: null,
-      phoneNumber2: null,
-      ownerName2: null,
+      phoneNumber1: result.phone_number_1,
+      ownerName1: result.owner_name_1,
+      phoneNumber2: result.phone_number_2,
+      ownerName2: result.owner_name_2,
       pin: result.pin,
     },
   };

@@ -132,6 +132,10 @@ export function ResetPIN() {
           apartmentNumber={resetResult.apartmentNumber}
           ownerName={resetResult.ownerName}
           pin={resetResult.pin}
+          phoneNumber1={resetResult.phoneNumber1}
+          ownerName1={resetResult.ownerName1}
+          phoneNumber2={resetResult.phoneNumber2}
+          ownerName2={resetResult.ownerName2}
           onClose={handleModalClose}
           isReset={true}
         />
