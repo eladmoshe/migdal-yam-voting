@@ -25,7 +25,6 @@ export function PINDisplayModal({
   onClose,
   isReset = false,
 }: PINDisplayModalProps) {
-  const [acknowledged, setAcknowledged] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Prevent body scroll when modal is open
@@ -44,7 +43,6 @@ export function PINDisplayModal({
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
-      setAcknowledged(false);
       setCopied(false);
     }
   }, [isOpen]);
@@ -109,9 +107,7 @@ https://migdal-yam-voting.netlify.app
   };
 
   const handleClose = () => {
-    if (acknowledged) {
-      onClose();
-    }
+    onClose();
   };
 
   if (!isOpen) {
@@ -273,30 +269,10 @@ https://migdal-yam-voting.netlify.app
           </div>
         )}
 
-        {/* Acknowledgment Checkbox */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={acknowledged}
-              onChange={(e) => setAcknowledged(e.target.checked)}
-              className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-0.5 flex-shrink-0"
-            />
-            <span className="text-sm text-gray-700">
-              העתקתי את הקוד ואני מבין/ה שלא אוכל לראות אותו שוב
-            </span>
-          </label>
-        </div>
-
         {/* Close Button */}
         <button
           onClick={handleClose}
-          disabled={!acknowledged}
-          className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-            acknowledged
-              ? 'bg-green-600 text-white hover:bg-green-700'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+          className="w-full bg-green-600 text-white hover:bg-green-700 py-3 px-4 rounded-lg font-medium transition-colors"
         >
           סגור
         </button>

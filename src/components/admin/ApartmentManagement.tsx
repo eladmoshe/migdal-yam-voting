@@ -21,6 +21,7 @@ export function ApartmentManagement() {
   // Reset PIN state
   const [resetResult, setResetResult] = useState<CreateApartmentResponse | null>(null);
   const [isResetting, setIsResetting] = useState(false);
+  const [confirmResetApartment, setConfirmResetApartment] = useState<string | null>(null);
 
   const loadApartments = async () => {
     setIsLoading(true);
@@ -109,15 +110,18 @@ export function ApartmentManagement() {
     }
   };
 
-  const handleResetPIN = async (apartmentNumber: string) => {
+  const confirmResetPIN = async () => {
+    if (!confirmResetApartment) return;
+
     setIsResetting(true);
     setError(null);
 
     try {
-      const result = await resetApartmentPin(apartmentNumber);
+      const result = await resetApartmentPin(confirmResetApartment);
 
       if (result.success) {
         setResetResult(result.data);
+        setConfirmResetApartment(null);
       } else {
         setError(result.error);
       }
@@ -273,7 +277,7 @@ export function ApartmentManagement() {
                                 שם
                               </button>
                               <button
-                                onClick={() => handleResetPIN(apartment.number)}
+                                onClick={() => setConfirmResetApartment(apartment.number)}
                                 disabled={isResetting}
                                 className="inline-flex items-center gap-1.5 text-amber-600 hover:text-amber-800 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-amber-50 transition-colors disabled:opacity-50"
                                 title="איפוס PIN"
@@ -413,6 +417,67 @@ export function ApartmentManagement() {
         </div>
       )}
 
+      {/* Reset PIN Confirmation Modal */}
+      {confirmResetApartment && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" dir="rtl">
+          <div className="card p-6 max-w-md w-full animate-in fade-in zoom-in duration-200">
+            <div className="flex items-start gap-4 mb-5">
+              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="w-6 h-6 text-amber-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">אישור איפוס PIN</h3>
+                <p className="text-gray-600 mb-3">
+                  האם אתה בטוח שברצונך לאפס את קוד ה-PIN?
+                </p>
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-3">
+                  <p className="font-semibold text-gray-800">דירה {confirmResetApartment}</p>
+                </div>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                  <div className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-amber-700 text-sm">
+                      הקוד הישן יפסיק לעבוד מיד ויוצר קוד חדש חד-פעמי
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={confirmResetPIN}
+                disabled={isResetting}
+                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {isResetting ? 'מאפס...' : 'כן, אפס PIN'}
+              </button>
+              <button
+                onClick={() => setConfirmResetApartment(null)}
+                disabled={isResetting}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50"
+              >
+                ביטול
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* PIN Display Modal */}
       {resetResult && (
         <PINDisplayModal
@@ -420,6 +485,10 @@ export function ApartmentManagement() {
           apartmentNumber={resetResult.apartmentNumber}
           ownerName={resetResult.ownerName}
           pin={resetResult.pin}
+          phoneNumber1={resetResult.phoneNumber1}
+          ownerName1={resetResult.ownerName1}
+          phoneNumber2={resetResult.phoneNumber2}
+          ownerName2={resetResult.ownerName2}
           onClose={handlePINModalClose}
           isReset={true}
         />
