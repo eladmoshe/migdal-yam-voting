@@ -35,12 +35,12 @@ describe('CreateApartment', () => {
       expect(screen.getByRole('button', { name: /צור דירה/i })).toBeInTheDocument();
     });
 
-    it('should have a link back to dashboard', () => {
+    it('should have a link back to apartment management', () => {
       renderCreateApartment();
 
       const backLink = screen.getByRole('link', { name: /חזרה/i });
       expect(backLink).toBeInTheDocument();
-      expect(backLink).toHaveAttribute('href', '/admin');
+      expect(backLink).toHaveAttribute('href', '/admin/apartments');
     });
 
     it('should have disabled submit button initially', () => {
@@ -119,7 +119,15 @@ describe('CreateApartment', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(mockCreateApartment).toHaveBeenCalledWith('42', 'משה לוי');
+        // createApartment is called with 6 parameters: number, name, and 4 optional phone/name fields
+        expect(mockCreateApartment).toHaveBeenCalledWith(
+          '42',
+          'משה לוי',
+          undefined,
+          undefined,
+          undefined,
+          undefined
+        );
       });
 
       // PIN modal should appear
@@ -203,10 +211,7 @@ describe('CreateApartment', () => {
         expect(screen.getByText(/קוד PIN נוצר בהצלחה/i)).toBeInTheDocument();
       });
 
-      // Acknowledge and close modal
-      const checkbox = screen.getByRole('checkbox');
-      await user.click(checkbox);
-
+      // Close modal (checkbox was removed from component)
       const closeButton = screen.getByRole('button', { name: /סגור/i });
       await user.click(closeButton);
 
