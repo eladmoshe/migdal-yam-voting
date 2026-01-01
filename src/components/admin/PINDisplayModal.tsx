@@ -81,12 +81,12 @@ export function PINDisplayModal({
 
 קוד ה-PIN האישי שלך למערכת ההצבעות:
 
-🔐 ${pin}
+${pin}
 
-📍 דירה: ${apartmentNumber}
-👤 על שם: ${ownerName}
+• דירה: ${apartmentNumber}
+• על שם: ${ownerName}
 
-⚠️ חשוב:
+*** חשוב ***
 • שמור את הקוד במקום בטוח
 • לא להעביר לאחרים
 • תצטרך את הקוד כדי להשתתף בהצבעות בבניין
