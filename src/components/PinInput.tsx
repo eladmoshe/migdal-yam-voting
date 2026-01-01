@@ -8,7 +8,7 @@ interface PinInputProps {
   error?: boolean;
 }
 
-export function PinInput({ value, onChange, length = 5, error = false }: PinInputProps) {
+export function PinInput({ value, onChange, length = 6, error = false }: PinInputProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {

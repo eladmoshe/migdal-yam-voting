@@ -81,7 +81,7 @@ export function LoginScreen() {
               <label
                 className="block text-xl font-semibold text-gray-800 mb-4 text-right"
               >
-                קוד PIN (5 ספרות)
+                קוד PIN (6 ספרות)
               </label>
               <PinInput
                 value={pin}
@@ -103,7 +103,7 @@ export function LoginScreen() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading || !apartmentNumber || pin.length !== 5}
+              disabled={isLoading || !apartmentNumber || pin.length !== 6}
               className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 text-white text-2xl font-bold py-5 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-200 shadow-lg shadow-blue-200 disabled:shadow-none flex items-center justify-center gap-3 transform hover:scale-[1.01] active:scale-[0.99] disabled:transform-none"
             >
               {isLoading ? (
