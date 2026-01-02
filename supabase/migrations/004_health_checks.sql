@@ -53,3 +53,4 @@ CREATE POLICY "Allow authenticated reads for health checks"
   TO authenticated
   USING (true);
 
+
