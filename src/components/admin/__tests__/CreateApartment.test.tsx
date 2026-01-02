@@ -35,12 +35,12 @@ describe('CreateApartment', () => {
       expect(screen.getByRole('button', { name: /צור דירה/i })).toBeInTheDocument();
     });
 
-    it('should have a link back to dashboard', () => {
+    it('should have a link back to apartments management', () => {
       renderCreateApartment();
 
       const backLink = screen.getByRole('link', { name: /חזרה/i });
       expect(backLink).toBeInTheDocument();
-      expect(backLink).toHaveAttribute('href', '/admin');
+      expect(backLink).toHaveAttribute('href', '/admin/apartments');
     });
 
     it('should have disabled submit button initially', () => {
@@ -119,7 +119,14 @@ describe('CreateApartment', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(mockCreateApartment).toHaveBeenCalledWith('42', 'משה לוי');
+        expect(mockCreateApartment).toHaveBeenCalledWith(
+          '42',
+          'משה לוי',
+          undefined,
+          undefined,
+          undefined,
+          undefined
+        );
       });
 
       // PIN modal should appear

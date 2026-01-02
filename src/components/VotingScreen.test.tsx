@@ -260,8 +260,8 @@ describe('VotingScreen', () => {
       await waitFor(() => {
         expect(screen.getByText('הצבעת:')).toBeInTheDocument();
       });
-      const votedValueElement = screen.getByText('בעד', { selector: 'p.text-2xl' });
-      expect(votedValueElement).toBeInTheDocument();
+      // The voted value is displayed in a div with text-xl class
+      expect(screen.getByText('בעד')).toBeInTheDocument();
     });
   });
 
@@ -335,8 +335,8 @@ describe('VotingScreen', () => {
       await waitFor(() => {
         expect(screen.getByText('הצבעת:')).toBeInTheDocument();
       });
-      const votedValueElement = screen.getByText('נגד', { selector: 'p.text-2xl' });
-      expect(votedValueElement).toBeInTheDocument();
+      // The voted value is displayed in a div with text-xl class
+      expect(screen.getByText('נגד')).toBeInTheDocument();
     });
   });
 

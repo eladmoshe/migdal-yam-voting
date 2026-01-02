@@ -42,6 +42,10 @@ describe('createApartment', () => {
       expect(mockRpc).toHaveBeenCalledWith('create_apartment', {
         p_apartment_number: '42',
         p_owner_name: 'משה לוי',
+        p_phone_number_1: null,
+        p_owner_name_1: null,
+        p_phone_number_2: null,
+        p_owner_name_2: null,
       });
 
       expect(result).toEqual({
@@ -50,6 +54,10 @@ describe('createApartment', () => {
           apartmentId: 'apt-123',
           apartmentNumber: '42',
           ownerName: 'משה לוי',
+          phoneNumber1: undefined,
+          ownerName1: undefined,
+          phoneNumber2: undefined,
+          ownerName2: undefined,
           pin: '123456',
         },
       });
@@ -195,6 +203,10 @@ describe('createApartment', () => {
       expect(mockRpc).toHaveBeenCalledWith('create_apartment', {
         p_apartment_number: '42',
         p_owner_name: 'משה לוי',
+        p_phone_number_1: null,
+        p_owner_name_1: null,
+        p_phone_number_2: null,
+        p_owner_name_2: null,
       });
     });
 
@@ -213,6 +225,10 @@ describe('createApartment', () => {
       expect(mockRpc).toHaveBeenCalledWith('create_apartment', {
         p_apartment_number: '42',
         p_owner_name: 'משה לוי',
+        p_phone_number_1: null,
+        p_owner_name_1: null,
+        p_phone_number_2: null,
+        p_owner_name_2: null,
       });
     });
   });
