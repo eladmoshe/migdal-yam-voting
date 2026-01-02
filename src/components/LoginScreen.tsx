@@ -117,6 +117,7 @@ export function LoginScreen() {
               <PinInput
                 value={pin}
                 onChange={setPin}
+                length={6}
                 error={!!error}
               />
             </div>
