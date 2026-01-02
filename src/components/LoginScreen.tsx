@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useVoting } from '../context/VotingContext';
 import { validateCredentials } from '../lib/api';
 import { PinInput } from './PinInput';
@@ -9,10 +9,27 @@ export function LoginScreen() {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const apartmentInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus apartment number input on mount
+  useEffect(() => {
+    apartmentInputRef.current?.focus();
+  }, []);
+
+  // Show error when PIN is filled but apartment number is empty
+  const showApartmentMissingHint = pin.length > 0 && !apartmentNumber.trim();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate apartment number before submitting
+    if (!apartmentNumber.trim()) {
+      setError('יש להזין מספר דירה');
+      apartmentInputRef.current?.focus();
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -54,26 +71,40 @@ export function LoginScreen() {
                 className="block text-xl font-semibold text-gray-800 mb-4 text-right"
               >
                 מספר דירה
+                <span className="text-red-500 mr-1">*</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-6 h-6 ${showApartmentMissingHint ? 'text-red-400' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                   </svg>
                 </div>
                 <input
+                  ref={apartmentInputRef}
                   type="text"
                   id="apartment"
                   inputMode="numeric"
                   pattern="[0-9]*"
                   value={apartmentNumber}
                   onChange={(e) => setApartmentNumber(e.target.value)}
-                  className="w-full text-3xl p-5 pr-14 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 text-center transition-all duration-200 bg-gray-50 focus:bg-white"
-                  placeholder="לדוגמה: 5"
+                  className={`w-full text-3xl p-5 pr-14 border-2 rounded-xl focus:outline-none focus:ring-4 text-center transition-all duration-200 ${
+                    showApartmentMissingHint
+                      ? 'border-red-400 bg-red-50 focus:border-red-500 focus:ring-red-100 animate-pulse'
+                      : 'border-gray-200 bg-gray-50 focus:border-blue-500 focus:ring-blue-100 focus:bg-white'
+                  }`}
+                  placeholder="יש להזין מספר דירה"
                   required
                   autoComplete="off"
                 />
               </div>
+              {showApartmentMissingHint && (
+                <p className="mt-2 text-red-600 text-lg text-center flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  יש להזין קודם את מספר הדירה
+                </p>
+              )}
             </div>
 
             {/* PIN */}

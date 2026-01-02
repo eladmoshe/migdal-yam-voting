@@ -55,7 +55,7 @@ describe('LoginScreen', () => {
     expect(screen.getByText('מגדל ים')).toBeInTheDocument();
     expect(screen.getByText('קלפי דיגיטלית')).toBeInTheDocument();
     expect(screen.getByLabelText(/מספר דירה/i)).toBeInTheDocument();
-    expect(screen.getByText(/קוד PIN/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/PIN digit 1/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /כניסה להצבעה/i })).toBeInTheDocument();
   });
 
@@ -92,6 +92,38 @@ describe('LoginScreen', () => {
     await typePIN(user, '12345'); // Only 5 digits
 
     expect(submitButton).toBeDisabled();
+  });
+
+  it('should only allow numeric input in PIN field', async () => {
+    const user = userEvent.setup();
+    renderLoginScreen();
+
+    const pinInput = screen.getByLabelText(/PIN digit 1/i) as HTMLInputElement;
+
+    await user.type(pinInput, 'abc123def456');
+
+    // PinInput filters non-numeric characters, so we should get digits only
+    // The first input should have '1' after typing
+    await waitFor(() => {
+      expect(pinInput.value).toBe('1');
+    });
+  });
+
+  it('should limit PIN to 6 characters', async () => {
+    const user = userEvent.setup();
+    renderLoginScreen();
+
+    const pinInput = screen.getByLabelText(/PIN digit 1/i) as HTMLInputElement;
+
+    await user.type(pinInput, '1234567890');
+
+    // After typing, the first input should have '1', and the component limits to 6 digits total
+    await waitFor(() => {
+      expect(pinInput.value).toBe('1');
+    });
+    // Check that the 6th input exists and has a value
+    const pinInput6 = screen.getByLabelText(/PIN digit 6/i) as HTMLInputElement;
+    expect(pinInput6.value).toBe('6');
   });
 
   it('should call validateCredentials on successful login', async () => {
@@ -175,5 +207,45 @@ describe('LoginScreen', () => {
     await waitFor(() => {
       expect(screen.getByText(/שגיאה בהתחברות/i)).toBeInTheDocument();
     });
+  });
+
+  it('should show hint when PIN is entered without apartment number', async () => {
+    const user = userEvent.setup();
+    renderLoginScreen();
+
+    const pinInput = screen.getByLabelText('PIN digit 1');
+
+    // Type PIN without entering apartment number
+    await user.type(pinInput, '123456');
+
+    // Should show the hint about entering apartment number first
+    expect(screen.getByText(/יש להזין קודם את מספר הדירה/i)).toBeInTheDocument();
+  });
+
+  it('should hide hint when apartment number is entered after PIN', async () => {
+    const user = userEvent.setup();
+    renderLoginScreen();
+
+    const apartmentInput = screen.getByLabelText(/מספר דירה/i);
+    const pinInput = screen.getByLabelText('PIN digit 1');
+
+    // Type PIN without entering apartment number
+    await user.type(pinInput, '123456');
+
+    // Hint should be visible
+    expect(screen.getByText(/יש להזין קודם את מספר הדירה/i)).toBeInTheDocument();
+
+    // Now enter apartment number
+    await user.type(apartmentInput, '5');
+
+    // Hint should disappear
+    expect(screen.queryByText(/יש להזין קודם את מספר הדירה/i)).not.toBeInTheDocument();
+  });
+
+  it('should focus apartment input on page load', () => {
+    renderLoginScreen();
+
+    const apartmentInput = screen.getByLabelText(/מספר דירה/i);
+    expect(document.activeElement).toBe(apartmentInput);
   });
 });

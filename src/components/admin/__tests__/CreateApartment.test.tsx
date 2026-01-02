@@ -119,14 +119,7 @@ describe('CreateApartment', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(mockCreateApartment).toHaveBeenCalledWith(
-          '42',
-          'משה לוי',
-          undefined,
-          undefined,
-          undefined,
-          undefined
-        );
+        expect(mockCreateApartment).toHaveBeenCalledWith('42', 'משה לוי', undefined, undefined, undefined, undefined);
       });
 
       // PIN modal should appear

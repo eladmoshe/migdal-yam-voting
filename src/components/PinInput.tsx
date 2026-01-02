@@ -6,15 +6,18 @@ interface PinInputProps {
   onChange: (value: string) => void;
   length?: number;
   error?: boolean;
+  autoFocus?: boolean;
 }
 
-export function PinInput({ value, onChange, length = 5, error = false }: PinInputProps) {
+export function PinInput({ value, onChange, length = 6, error = false, autoFocus = false }: PinInputProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    // Focus first input on mount
-    inputRefs.current[0]?.focus();
-  }, []);
+    // Only focus first input if autoFocus is true
+    if (autoFocus) {
+      inputRefs.current[0]?.focus();
+    }
+  }, [autoFocus]);
 
   const handleChange = (index: number, inputValue: string) => {
     // Only allow digits

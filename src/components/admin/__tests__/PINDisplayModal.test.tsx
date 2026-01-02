@@ -73,17 +73,11 @@ describe('PINDisplayModal', () => {
       expect(screen.getByRole('button', { name: /הדפס/i })).toBeInTheDocument();
     });
 
-    it('should have acknowledgment checkbox', () => {
-      render(<PINDisplayModal {...defaultProps} />);
-      expect(screen.getByRole('checkbox')).toBeInTheDocument();
-      expect(screen.getByLabelText(/העתקתי את הקוד/i)).toBeInTheDocument();
-    });
-
-    it('should have close button that is initially disabled', () => {
+    it('should have close button that is enabled', () => {
       render(<PINDisplayModal {...defaultProps} />);
       const closeButton = screen.getByRole('button', { name: /סגור/i });
       expect(closeButton).toBeInTheDocument();
-      expect(closeButton).toBeDisabled();
+      expect(closeButton).not.toBeDisabled();
     });
   });
 
@@ -132,29 +126,12 @@ describe('PINDisplayModal', () => {
     });
   });
 
-  describe('acknowledgment and closing', () => {
-    it('should enable close button when checkbox is checked', async () => {
-      const user = userEvent.setup();
-      render(<PINDisplayModal {...defaultProps} />);
-
-      const checkbox = screen.getByRole('checkbox');
-      const closeButton = screen.getByRole('button', { name: /סגור/i });
-
-      expect(closeButton).toBeDisabled();
-
-      await user.click(checkbox);
-
-      expect(closeButton).not.toBeDisabled();
-    });
-
+  describe('closing', () => {
     it('should call onClose when close button is clicked', async () => {
       const user = userEvent.setup();
       render(<PINDisplayModal {...defaultProps} />);
 
-      const checkbox = screen.getByRole('checkbox');
       const closeButton = screen.getByRole('button', { name: /סגור/i });
-
-      await user.click(checkbox);
       await user.click(closeButton);
 
       expect(mockOnClose).toHaveBeenCalled();
@@ -170,7 +147,7 @@ describe('PINDisplayModal', () => {
         await user.click(backdrop);
       }
 
-      // onClose should not be called without checkbox being checked
+      // onClose should not be called by clicking outside
       expect(mockOnClose).not.toHaveBeenCalled();
     });
   });
