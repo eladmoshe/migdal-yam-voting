@@ -47,7 +47,13 @@ describe('AdminDashboard', () => {
     mockGetSession.mockResolvedValue(mockSession);
     mockCheckIsAdmin.mockResolvedValue(true);
     mockOnAuthStateChange.mockReturnValue({
-      data: { subscription: { unsubscribe: vi.fn() } },
+      data: {
+        subscription: {
+          id: 'test-subscription-id',
+          callback: vi.fn(),
+          unsubscribe: vi.fn(),
+        },
+      },
     });
     mockAdminLogout.mockResolvedValue({ error: null });
   });

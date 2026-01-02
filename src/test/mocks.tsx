@@ -202,19 +202,16 @@ export function createMockCreateApartmentResponse(overrides?: Partial<{
 // TEST WRAPPER UTILITIES
 // ============================================
 
-import { type ReactNode } from 'react';
+import { type ReactNode, type ComponentType } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
-export function createWrapper(providers: ReactNode[]) {
+export function createWrapper(providers: ComponentType<{ children: ReactNode }>[]) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return providers.reduce(
       (acc, Provider) => {
-        if (typeof Provider === 'function') {
-          return <Provider>{acc}</Provider>;
-        }
-        return acc;
+        return <Provider>{acc}</Provider>;
       },
-      children
+      children as ReactNode
     );
   };
 }

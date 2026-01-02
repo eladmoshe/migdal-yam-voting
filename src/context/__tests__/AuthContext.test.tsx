@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
+import type { Session } from '@supabase/supabase-js';
 import { AuthProvider, useAuth } from '../AuthContext';
 import * as auth from '../../lib/auth';
 import { createMockSession, createMockUser } from '../../test/mocks';
@@ -38,7 +39,7 @@ function TestConsumer() {
 
 describe('AuthContext', () => {
   let unsubscribeMock: ReturnType<typeof vi.fn>;
-  let authStateCallback: ((event: string, session: auth.Session | null) => void) | null;
+  let authStateCallback: ((event: string, session: Session | null) => void) | null;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -51,10 +52,12 @@ describe('AuthContext', () => {
       return {
         data: {
           subscription: {
+            id: 'test-subscription-id',
+            callback: callback,
             unsubscribe: unsubscribeMock,
           },
         },
-      };
+      } as ReturnType<typeof auth.onAuthStateChange>;
     });
   });
 
