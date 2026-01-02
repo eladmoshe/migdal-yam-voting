@@ -260,12 +260,8 @@ describe('VotingScreen', () => {
       await waitFor(() => {
         expect(screen.getByText('הצבעת:')).toBeInTheDocument();
       });
-      // The voted value should be displayed
-      await waitFor(() => {
-        // "בעד" appears both in the success screen and potentially in other places
-        // We check that the success message and vote confirmation are present
-        expect(screen.getByText(/תודה רבה/i)).toBeInTheDocument();
-      });
+      const votedValueElement = screen.getByText('בעד');
+      expect(votedValueElement).toBeInTheDocument();
     });
   });
 
@@ -339,10 +335,8 @@ describe('VotingScreen', () => {
       await waitFor(() => {
         expect(screen.getByText('הצבעת:')).toBeInTheDocument();
       });
-      // The voted value should be displayed
-      await waitFor(() => {
-        expect(screen.getByText(/תודה רבה/i)).toBeInTheDocument();
-      });
+      const votedValueElement = screen.getByText('נגד');
+      expect(votedValueElement).toBeInTheDocument();
     });
   });
 
