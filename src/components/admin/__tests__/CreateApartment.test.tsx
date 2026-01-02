@@ -203,10 +203,7 @@ describe('CreateApartment', () => {
         expect(screen.getByText(/קוד PIN נוצר בהצלחה/i)).toBeInTheDocument();
       });
 
-      // Acknowledge and close modal
-      const checkbox = screen.getByRole('checkbox');
-      await user.click(checkbox);
-
+      // Close modal
       const closeButton = screen.getByRole('button', { name: /סגור/i });
       await user.click(closeButton);
 
