@@ -187,10 +187,115 @@ npm run test:ui      # Run tests with UI
 ```
 
 ### Testing Strategy
-- **Unit Tests**: Components with mocked Supabase client
-  - Keep-alive function: 13 test cases covering auth, validation, and execution
-- **Integration Tests**: Full flows with mock data
-- **Manual Testing**: Both voter and admin interfaces before deployment
+
+**Test Stack:**
+- **Vitest 4.0** - Fast test runner with native ESM support
+- **React Testing Library 16.3** - Component testing utilities
+- **happy-dom 20.0** - DOM implementation for tests
+
+**Running Tests:**
+```bash
+npm test             # Watch mode
+npm run test:run     # Single run (CI)
+npm run test:ui      # Visual test UI
+```
+
+**Test Coverage Summary** (291 tests across 21 test files):
+- Context providers: VotingContext, AuthContext
+- API functions: auth.ts, api.ts (voter and admin)
+- Components: LoginScreen, VotingScreen, PinInput, all admin components
+- Pages: VoterPage, AdminPage, NotFound
+
+**Test File Locations:**
+```
+src/
+├── test/
+│   └── mocks.tsx                    # Mock factories and utilities
+├── components/
+│   ├── __tests__/
+│   │   └── PinInput.test.tsx
+│   ├── VotingScreen.test.tsx
+│   ├── LoginScreen.test.tsx
+│   └── admin/__tests__/
+│       ├── AdminDashboard.test.tsx
+│       ├── AdminLogin.test.tsx
+│       ├── ApartmentManagement.test.tsx
+│       ├── CreateApartment.test.tsx
+│       ├── CreateIssue.test.tsx
+│       ├── IssueDetails.test.tsx
+│       └── PINDisplayModal.test.tsx
+├── context/__tests__/
+│   ├── AuthContext.test.tsx
+│   └── VotingContext.test.tsx
+├── lib/__tests__/
+│   ├── api.admin.test.ts
+│   ├── api.createApartment.test.ts
+│   ├── api.voter.test.ts
+│   └── auth.test.ts
+└── pages/__tests__/
+    ├── AdminPage.test.tsx
+    ├── NotFound.test.tsx
+    └── VoterPage.test.tsx
+netlify/functions-tests/
+    └── keep-alive.test.ts
+```
+
+**Writing Tests - Patterns:**
+
+1. **Mock Supabase client** - Use `vi.mock()` for `../../config/supabase`:
+```typescript
+vi.mock('../../config/supabase', () => ({
+  supabase: {
+    rpc: vi.fn(),
+    from: vi.fn(),
+    auth: { signInWithPassword: vi.fn(), signOut: vi.fn() },
+  },
+}));
+```
+
+2. **Use mock factories** from `src/test/mocks.tsx`:
+```typescript
+import { createMockApartment, createMockVotingIssue, createMockUser } from '../../test/mocks';
+const mockApartment = createMockApartment({ number: '42', ownerName: 'Test' });
+```
+
+3. **Handle Hebrew text and RTL** - Text appears as-is in tests:
+```typescript
+expect(screen.getByText('שלום, דירה 42')).toBeInTheDocument();
+```
+
+4. **Handle duplicate elements** - Use `getAllByText` when text appears multiple times:
+```typescript
+expect(screen.getAllByText('הצבעה פעילה').length).toBeGreaterThan(0);
+```
+
+5. **Router context** - Wrap components with MemoryRouter:
+```typescript
+render(
+  <MemoryRouter initialEntries={['/admin']}>
+    <Routes>
+      <Route path="/admin/*" element={<AdminPage />} />
+    </Routes>
+  </MemoryRouter>
+);
+```
+
+**Preserving Test Coverage:**
+
+When making changes to the codebase:
+
+1. **Always run tests** before committing: `npm run test:run`
+2. **Update tests** when component behavior changes
+3. **Add new tests** when adding new features
+4. **Check for regressions** - All 291 tests should pass
+5. **Mock external dependencies** - Never call real Supabase APIs in tests
+
+**Common Test Issues:**
+
+- **Multiple elements found**: Use `getAllByText` instead of `getByText`
+- **Element not found**: Check if component renders conditionally, use `waitFor`
+- **Act warnings**: Wrap state updates in async/await with `waitFor`
+- **JSX in .ts file**: Rename to .tsx if file contains JSX
 
 ### Environment Setup
 1. Copy `.env.example` to `.env.local`
@@ -468,4 +573,4 @@ NETLIFY_SITE_URL = https://migdal-yam-voting.netlify.app
 
 ---
 
-*Last Updated: 2025-12-23*
+*Last Updated: 2026-01-01*

@@ -41,7 +41,7 @@ describe('LoginScreen', () => {
     expect(screen.getByText('מגדל ים')).toBeInTheDocument();
     expect(screen.getByText('קלפי דיגיטלית')).toBeInTheDocument();
     expect(screen.getByLabelText(/מספר דירה/i)).toBeInTheDocument();
-    expect(screen.getByLabelText('PIN digit 1')).toBeInTheDocument();
+    expect(screen.getByLabelText(/PIN digit 1/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /כניסה להצבעה/i })).toBeInTheDocument();
   });
 
@@ -57,7 +57,7 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText('PIN digit 1');
+    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
@@ -71,7 +71,7 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText('PIN digit 1');
+    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
@@ -84,22 +84,32 @@ describe('LoginScreen', () => {
     const user = userEvent.setup();
     renderLoginScreen();
 
-    const pinInput = screen.getByLabelText('PIN digit 1') as HTMLInputElement;
+    const pinInput = screen.getByLabelText(/PIN digit 1/i) as HTMLInputElement;
 
     await user.type(pinInput, 'abc123def456');
 
-    expect(pinInput.value).toBe('1');
+    // PinInput filters non-numeric characters, so we should get digits only
+    // The first input should have '1' after typing
+    await waitFor(() => {
+      expect(pinInput.value).toBe('1');
+    });
   });
 
   it('should limit PIN to 6 characters', async () => {
     const user = userEvent.setup();
     renderLoginScreen();
 
-    const pinInput = screen.getByLabelText('PIN digit 1') as HTMLInputElement;
+    const pinInput = screen.getByLabelText(/PIN digit 1/i) as HTMLInputElement;
 
     await user.type(pinInput, '1234567890');
 
-    expect(pinInput.value).toBe('1');
+    // After typing, the first input should have '1', and the component limits to 6 digits total
+    await waitFor(() => {
+      expect(pinInput.value).toBe('1');
+    });
+    // Check that the 6th input exists and has a value
+    const pinInput6 = screen.getByLabelText(/PIN digit 6/i) as HTMLInputElement;
+    expect(pinInput6.value).toBe('6');
   });
 
   it('should call validateCredentials on successful login', async () => {
@@ -113,7 +123,7 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText('PIN digit 1');
+    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
@@ -132,7 +142,7 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText('PIN digit 1');
+    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
@@ -154,7 +164,7 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText('PIN digit 1');
+    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
@@ -177,7 +187,7 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText('PIN digit 1');
+    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');

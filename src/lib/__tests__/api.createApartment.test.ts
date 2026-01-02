@@ -32,6 +32,10 @@ describe('createApartment', () => {
         apartment_id: 'apt-123',
         apartment_number: '42',
         owner_name: 'משה לוי',
+        phone_number_1: null,
+        owner_name_1: null,
+        phone_number_2: null,
+        owner_name_2: null,
         pin: '123456',
       };
 
@@ -42,6 +46,10 @@ describe('createApartment', () => {
       expect(mockRpc).toHaveBeenCalledWith('create_apartment', {
         p_apartment_number: '42',
         p_owner_name: 'משה לוי',
+        p_phone_number_1: null,
+        p_owner_name_1: null,
+        p_phone_number_2: null,
+        p_owner_name_2: null,
       });
 
       expect(result).toEqual({
@@ -50,6 +58,10 @@ describe('createApartment', () => {
           apartmentId: 'apt-123',
           apartmentNumber: '42',
           ownerName: 'משה לוי',
+          phoneNumber1: null,
+          ownerName1: null,
+          phoneNumber2: null,
+          ownerName2: null,
           pin: '123456',
         },
       });
@@ -60,6 +72,10 @@ describe('createApartment', () => {
         apartment_id: 'apt-456',
         apartment_number: '10A',
         owner_name: 'דוד כהן',
+        phone_number_1: null,
+        owner_name_1: null,
+        phone_number_2: null,
+        owner_name_2: null,
         pin: '654321',
       };
 
@@ -73,6 +89,10 @@ describe('createApartment', () => {
           apartmentId: 'apt-456',
           apartmentNumber: '10A',
           ownerName: 'דוד כהן',
+          phoneNumber1: null,
+          ownerName1: null,
+          phoneNumber2: null,
+          ownerName2: null,
           pin: '654321',
         },
       });
@@ -185,6 +205,10 @@ describe('createApartment', () => {
         apartment_id: 'apt-123',
         apartment_number: '42',
         owner_name: 'משה לוי',
+        phone_number_1: null,
+        owner_name_1: null,
+        phone_number_2: null,
+        owner_name_2: null,
         pin: '123456',
       };
 
@@ -195,6 +219,10 @@ describe('createApartment', () => {
       expect(mockRpc).toHaveBeenCalledWith('create_apartment', {
         p_apartment_number: '42',
         p_owner_name: 'משה לוי',
+        p_phone_number_1: null,
+        p_owner_name_1: null,
+        p_phone_number_2: null,
+        p_owner_name_2: null,
       });
     });
 
@@ -203,6 +231,10 @@ describe('createApartment', () => {
         apartment_id: 'apt-123',
         apartment_number: '42',
         owner_name: 'משה לוי',
+        phone_number_1: null,
+        owner_name_1: null,
+        phone_number_2: null,
+        owner_name_2: null,
         pin: '123456',
       };
 
@@ -213,6 +245,10 @@ describe('createApartment', () => {
       expect(mockRpc).toHaveBeenCalledWith('create_apartment', {
         p_apartment_number: '42',
         p_owner_name: 'משה לוי',
+        p_phone_number_1: null,
+        p_owner_name_1: null,
+        p_phone_number_2: null,
+        p_owner_name_2: null,
       });
     });
   });
