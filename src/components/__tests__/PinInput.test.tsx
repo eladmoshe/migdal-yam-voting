@@ -36,7 +36,7 @@ describe('PinInput', () => {
     });
 
     it('should focus first input on mount', async () => {
-      render(<PinInput value="" onChange={mockOnChange} />);
+      render(<PinInput value="" onChange={mockOnChange} autoFocus />);
 
       await waitFor(() => {
         const inputs = screen.getAllByRole('textbox');

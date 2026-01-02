@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { Apartment, VotingIssue } from '../types';
 import { getActiveIssue } from '../lib/api';
+import { loadVoterSession, saveVoterSession, clearVoterSession } from '../lib/voterSession';
 
 interface VotingContextType {
   // Voter session
@@ -23,17 +24,23 @@ interface VotingProviderProps {
 }
 
 export function VotingProvider({ children }: VotingProviderProps) {
-  const [apartment, setApartment] = useState<Apartment | null>(null);
+  // Initialize from localStorage - use lazy initializer for SSR safety
+  const [apartment, setApartment] = useState<Apartment | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return loadVoterSession();
+  });
   const [currentIssue, setCurrentIssue] = useState<VotingIssue | null>(null);
   const [isLoadingIssue, setIsLoadingIssue] = useState(true);
   const [issueError, setIssueError] = useState<string | null>(null);
 
   const login = (apt: Apartment) => {
     setApartment(apt);
+    saveVoterSession(apt);
   };
 
   const logout = () => {
     setApartment(null);
+    clearVoterSession();
   };
 
   const refreshIssue = async () => {

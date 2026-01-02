@@ -35,7 +35,7 @@ describe('CreateApartment', () => {
       expect(screen.getByRole('button', { name: /צור דירה/i })).toBeInTheDocument();
     });
 
-    it('should have a link back to dashboard', () => {
+    it('should have a link back to apartments management', () => {
       renderCreateApartment();
 
       const backLink = screen.getByRole('link', { name: /חזרה/i });
@@ -203,10 +203,7 @@ describe('CreateApartment', () => {
         expect(screen.getByText(/קוד PIN נוצר בהצלחה/i)).toBeInTheDocument();
       });
 
-      // Acknowledge and close modal
-      const checkbox = screen.getByRole('checkbox');
-      await user.click(checkbox);
-
+      // Close modal
       const closeButton = screen.getByRole('button', { name: /סגור/i });
       await user.click(closeButton);
 

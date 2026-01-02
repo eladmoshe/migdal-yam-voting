@@ -11,6 +11,13 @@ vi.mock('../lib/api', () => ({
   getActiveIssue: vi.fn(),
 }));
 
+// Mock the voterSession module
+vi.mock('../lib/voterSession', () => ({
+  loadVoterSession: vi.fn(() => null),
+  saveVoterSession: vi.fn(),
+  clearVoterSession: vi.fn(),
+}));
+
 const mockValidateCredentials = vi.mocked(api.validateCredentials);
 const mockGetActiveIssue = vi.mocked(api.getActiveIssue);
 
@@ -20,6 +27,13 @@ function renderLoginScreen() {
       <LoginScreen />
     </VotingProvider>
   );
+}
+
+// Helper to type PIN into the 6-digit split input
+async function typePIN(user: ReturnType<typeof userEvent.setup>, pin: string) {
+  const firstDigitInput = screen.getByLabelText('PIN digit 1');
+  await user.click(firstDigitInput);
+  await user.type(firstDigitInput, pin);
 }
 
 describe('LoginScreen', () => {
@@ -57,13 +71,14 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
-    await user.type(pinInput, '123456');
+    await typePIN(user, '123456');
 
-    expect(submitButton).not.toBeDisabled();
+    await waitFor(() => {
+      expect(submitButton).not.toBeDisabled();
+    });
   });
 
   it('should keep submit button disabled with less than 6 digits PIN', async () => {
@@ -71,11 +86,10 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
-    await user.type(pinInput, '12345'); // Only 5 digits
+    await typePIN(user, '12345'); // Only 5 digits
 
     expect(submitButton).toBeDisabled();
   });
@@ -123,11 +137,10 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
-    await user.type(pinInput, '123456');
+    await typePIN(user, '123456');
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -142,11 +155,10 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
-    await user.type(pinInput, '999999'); // Wrong PIN
+    await typePIN(user, '999999'); // Wrong PIN
     await user.click(submitButton);
 
     await waitFor(() => {
@@ -164,11 +176,10 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
-    await user.type(pinInput, '123456');
+    await typePIN(user, '123456');
     await user.click(submitButton);
 
     expect(screen.getByText(/מתחבר/i)).toBeInTheDocument();
@@ -187,11 +198,10 @@ describe('LoginScreen', () => {
     renderLoginScreen();
 
     const apartmentInput = screen.getByLabelText(/מספר דירה/i);
-    const pinInput = screen.getByLabelText(/PIN digit 1/i);
     const submitButton = screen.getByRole('button', { name: /כניסה להצבעה/i });
 
     await user.type(apartmentInput, '1');
-    await user.type(pinInput, '123456');
+    await typePIN(user, '123456');
     await user.click(submitButton);
 
     await waitFor(() => {
